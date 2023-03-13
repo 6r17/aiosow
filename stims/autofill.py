@@ -14,7 +14,7 @@ def prototype(function:Callable) -> List:
 
 async def autofill(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
     argscopy = list(args)
-    kws = {} if not 'kwargs' in [name for name in inspect.signature(function).parameters] else kwargs
+    kws = kwargs if inspect.getfullargspec(function).varkw else {}
     result = function(*[
             argscopy.pop(0) if len(argscopy) > 0 else kwargs.get(name, value)
             for (name, value) in prototype(function)
