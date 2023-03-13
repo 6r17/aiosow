@@ -31,6 +31,7 @@ def routine(interval: int, life=0, repeat=True, condition: Callable|None=None, p
         return fn
     return decorator
 
+@delay(1)
 async def consume_routines(kwargs):
     for routine in ROUTINES:
         routine["life"] = routine["life"] - 1
