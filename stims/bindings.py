@@ -5,6 +5,8 @@ import asyncio
 import time
 import functools
 
+
+from stims.autofill import autofill
 # TODO: generate doc using a decorator
 
 def delay(seconds: float):
@@ -29,13 +31,11 @@ def delay(seconds: float):
         @functools.wraps(function)
         async def wrapper(*args, **kwargs):
             start_time = time.monotonic()
-            result = await function(*args, **kwargs)
+            result = await autofill(function, args, kwargs)
             end_time = time.monotonic()
             exec_time = end_time - start_time
             delay = max(seconds - exec_time, 0)
             await asyncio.sleep(delay)
             return result
-
         return wrapper
-
     return decorator

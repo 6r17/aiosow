@@ -1,3 +1,6 @@
 [paths]
 source =
     stims/
+omit =
+    stims/command.py
+    stims/app.py

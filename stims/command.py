@@ -1,5 +1,5 @@
 #! env python3.11
-
+# pragma: no cover
 import os
 import json
 import site

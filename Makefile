@@ -9,4 +9,4 @@ activate:
 	@echo '. env/bin/activate'
 
 test:
-	env/bin/pytest --cov=stims --cov-report=term-missing
+	env/bin/pytest -s --cov=stims --cov-report=term-missing
