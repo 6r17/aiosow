@@ -1,0 +1,35 @@
+name: Package test
+
+on:
+  push:
+    branches: '**'
+  pull_request:
+    branches: '**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.11']
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install package
+      run: |
+        python -m pip install --upgrade pip
+        pip install .
+
+    - name: Install development dependencies
+      run: |
+        pip install ".[dev]"
+
+    - name: Run tests with coverage
+      run: |
+        pytest --cov=stims --cov-report term-missing tests/
