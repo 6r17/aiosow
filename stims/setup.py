@@ -21,7 +21,7 @@ def setup(func: Callable) -> Callable:
     return func
 
 
-async def initialize(app: web.Application, mem: Dict) -> None:
+async def initialize(kwargs: Dict) -> None:
     """
     Function that runs all initialization functions added to the list.
 
@@ -31,7 +31,7 @@ async def initialize(app: web.Application, mem: Dict) -> None:
     """
     for setup_func in SETUP_FUNCTIONS:
         try:
-            await setup_func(app, mem)
+            await setup_func(kwargs)
         except Exception as e:
             logger.error(f"An error occurred while running {setup_func.__name__}: {e}")
 

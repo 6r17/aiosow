@@ -10,3 +10,6 @@ activate:
 
 test:
 	env/bin/pytest -s --cov=stims --cov-report=term-missing
+
+report:
+	env/bin/coverage report
