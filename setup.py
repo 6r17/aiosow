@@ -7,7 +7,7 @@ setup(
     license='MIT',
     entry_points={
         'console_scripts': [
-            'stim = stim.command:run',
+            'stims = stims.command:run',
         ],
     },
     install_requires=[
@@ -17,7 +17,10 @@ setup(
     ],
     extras_require={
         "dev": [
-            "pytest"
+            "pytest",
+            "pytest-mock",
+            "pytest-asyncio",
+            "pytest-coverage"
         ]
     }
 )

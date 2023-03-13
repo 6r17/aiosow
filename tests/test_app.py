@@ -1,5 +1,4 @@
-
-import os
+import os, json
 import pytest
 from aiohttp import web
 from unittest import mock
@@ -11,9 +10,7 @@ async def mock_initialize(app, mem):
 @mock.patch('stims.setup.initialize', new=mock_initialize)
 @pytest.mark.asyncio
 async def test_app_factory():
-    os.environ['VAR1'] = 'value1'
-    os.environ['VAR2'] = 'value2'
+    os.environ['STIMS_CONFIG'] = json.dumps({"a": "test"})
     app = await app_factory()
     assert isinstance(app, web.Application)
-    assert app['mem']['VAR1'] == 'value1'
-    assert app['mem']['VAR2'] == 'value2'
+    assert app['mem']['a'] == 'test'
