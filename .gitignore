@@ -2,3 +2,4 @@
 env
 *.pyc
 stims.egg-info
+build
