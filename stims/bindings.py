@@ -5,10 +5,15 @@ import asyncio
 import time
 import functools
 
-
 from stims.autofill import autofill
-# TODO: generate doc using a decorator
 
+# this is used to gather decorators for test and documentation
+DECORATORS = []
+def decorator(function: Callable):
+    DECORATORS.append(function)
+    return function
+
+@decorator
 def delay(seconds: float):
     """
     Decorator that delays the execution of an asynchronous function by 
