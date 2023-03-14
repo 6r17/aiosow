@@ -7,13 +7,6 @@ import functools
 
 from stims.autofill import autofill
 
-# this is used to gather decorators for test and documentation
-DECORATORS = []
-def decorator(function: Callable):
-    DECORATORS.append(function)
-    return function
-
-@decorator
 def delay(seconds: float):
     """
     Decorator that delays the execution of an asynchronous function by 
@@ -45,7 +38,6 @@ def delay(seconds: float):
         return wrapper
     return decorator
 
-@decorator
 def wrap(wrapper_function: Callable):
     def decorator(function: Callable):
         @functools.wraps(function)
@@ -55,7 +47,6 @@ def wrap(wrapper_function: Callable):
         return execute
     return decorator
 
-@decorator
 def each(iterated_generator: Callable):
     def decorator(function: Callable):
         @functools.wraps(function)

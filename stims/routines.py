@@ -1,11 +1,13 @@
 
+import logging
 from typing import Callable
 
 import aiojobs, asyncio
 
+from stims.run import run
 from stims.setup import setup
 from stims.perpetuate import perpetuate, autofill
-from stims.bindings import delay, decorator
+from stims.bindings import delay
 
 ROUTINES = []
 
@@ -17,7 +19,6 @@ def get_routines():
     global ROUTINES
     return ROUTINES
 
-@decorator
 def routine(interval: int, life=0, repeat=True, condition: Callable|None=None, perpetuate=True) -> Callable:
     def decorator(fn: Callable) -> Callable:
         ROUTINES.append({
@@ -45,12 +46,19 @@ async def consume_routines(kwargs):
             else:
                 ROUTINES.remove(routine)
 
-async def run(kwargs): # pragma: no cover
+async def consume_routines_forever(kwargs): # pragma: no cover
     '''Loop forever and calls consume_routine on every call'''
     while True:
+        logging.debug('Scheduler heart-beat')
         await consume_routines(kwargs)
 
-async def spawn_routine_manager(kwargs): # pragma: no cover
+@setup
+async def scheduler(kwargs): # pragma: no cover
     '''Uses aiojobs scheduler to spawn a 2nd execution queue'''
     scheduler = aiojobs.Scheduler()
-    await scheduler.spawn(run(kwargs))
+    job = await scheduler.spawn(consume_routines_forever(kwargs))
+    return { 'routine_job': job, 'scheduler': scheduler }
+
+@run
+async def wait_for_scheduler(routine_job):
+    await routine_job.wait()

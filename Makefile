@@ -13,3 +13,6 @@ test:
 
 report:
 	env/bin/coverage report
+
+pydoc:
+	cd stims ; ../env/bin/python3.10 -m pydoc -b -p 9000 stims

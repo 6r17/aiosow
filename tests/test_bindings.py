@@ -5,8 +5,6 @@ from stims.bindings import delay, wrap, each
 
 from typing import Callable
 
-
-
 @pytest.fixture
 def synchronous_function():
     def my_synchronous_function():

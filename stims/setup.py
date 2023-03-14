@@ -1,10 +1,8 @@
-import logging
+import logging, asyncio
 from typing import Dict, List, Callable
-from aiohttp import web
-
+from stims.perpetuate import perpetuate
 
 SETUP_FUNCTIONS: List = []
-logger = logging.getLogger(__name__)
 
 
 def setup(func: Callable) -> Callable:
@@ -29,9 +27,7 @@ async def initialize(kwargs: Dict) -> None:
         app (web.Application): The aiohttp application.
         mem (Dict): The mem dictionary.
     """
+    logging.debug('initialize with %s', [f'{fn.__module__}.{fn.__name__}' for fn in SETUP_FUNCTIONS])
     for setup_func in SETUP_FUNCTIONS:
-        try:
-            await setup_func(kwargs)
-        except Exception as e:
-            logger.error(f"An error occurred while running {setup_func.__name__}: {e}")
-
+        await perpetuate(setup_func, kwargs=kwargs)
+        logging.debug(f'{setup_func.__module__}.{setup_func.__name__} : ok')

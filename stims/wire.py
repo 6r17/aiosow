@@ -5,7 +5,6 @@ from functools import wraps
 
 from stims.autofill import autofill
 
-
 def wire() -> Tuple[Callable, Callable]:
     listeners = []
     def trigger_decorator(triggerer):
