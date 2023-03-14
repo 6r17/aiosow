@@ -1,7 +1,7 @@
 
 import time
 import pytest
-from stims.bindings import delay
+from stims.bindings import delay, wrap
 
 @pytest.fixture
 def synchronous_function():
@@ -30,3 +30,7 @@ async def test_delay_decorator(synchronous_function, asynchronous_function):
     end_time = time.monotonic()
     assert result is True
     assert end_time - start_time >= 0.005  # Ensure asynchronous function has same behavior
+
+@pytest.mark.asyncio
+async def test_wrapper_decorator():
+    assert await wrap(lambda a: { "test": a })(lambda : 2)() == { "test": 2 }

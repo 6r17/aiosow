@@ -36,11 +36,20 @@ def delay(seconds: float):
         @functools.wraps(function)
         async def wrapper(*args, **kwargs):
             start_time = time.monotonic()
-            result = await autofill(function, args, kwargs)
+            result = await autofill(function, args=args, kwargs=kwargs)
             end_time = time.monotonic()
             exec_time = end_time - start_time
             delay = max(seconds - exec_time, 0)
             await asyncio.sleep(delay)
             return result
         return wrapper
+    return decorator
+
+def wrap(wrapper_function: Callable):
+    def decorator(function: Callable):
+        @functools.wraps(function)
+        async def execute(*args, **kwargs):
+            result = await autofill(function, args=args, kwargs=kwargs)
+            return wrapper_function(result)
+        return execute
     return decorator
