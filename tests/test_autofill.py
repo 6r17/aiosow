@@ -1,7 +1,7 @@
 import pytest
 
 from stims.bindings import delay
-from stims.autofill import prototype, autofill
+from stims.autofill import *
 
 def my_func(__a__, __b__=2, __c__=3):
     '''__ is used to prevent linter error'''
@@ -14,7 +14,17 @@ def test_prototype():
     assert proto[2] == ('__c__', 3)
 
 @pytest.mark.asyncio
+async def test_alias():
+    assert len(get_aliases()) == 0
+    def test():
+        return 'bar'
+    alias('foo')(test)
+    assert len(get_aliases()) == 1
+    assert get_aliases()['foo'] == test
+
+@pytest.mark.asyncio
 async def test_await_autofill():
+    reset_aliases()
     # Test 1: Call a simple function with positional arguments
     def my_function(a, b, c):
         return a + b + c
@@ -86,3 +96,13 @@ async def test_await_autofill():
     # Test 7: On a decorated function
     decorated_function = delay(0.05)(my_function6)
     assert await autofill(decorated_function, args=args, kwargs=kwargs) == ((1, 2), {'a': 3, 'b': 4})
+
+    # Test 8: With an alias
+    def my_function7(test):
+        return test
+
+    kwargs = { 'test': 'error' }
+    def test():
+        return 'correct'
+    alias('test')(test)
+    assert await autofill(my_function7, args=args, kwargs=kwargs) == 'correct'

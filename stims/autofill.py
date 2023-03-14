@@ -12,10 +12,27 @@ def prototype(function:Callable) -> List:
         for param_name, param in inspect.signature(function).parameters.items()
     ]
 
+ALIASES = {}
+
+def get_aliases(): # pragma: no cover
+    global ALIASES
+    return ALIASES
+
+def reset_aliases(): # pragma: no cover
+    global ALIASES
+    ALIASES = {}
+
+def alias(name: str):
+    def decorator(function: Callable):
+        ALIASES[name] = function 
+        return function
+    return decorator
+
 async def autofill(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
     argscopy = list(args)
     kws = kwargs if inspect.getfullargspec(function).varkw else {}
     result = function(*[
+            await autofill(ALIASES[name], args=args, kwargs=kwargs) if name in ALIASES else
             argscopy.pop(0) if len(argscopy) > 0 else kwargs.get(name, value)
             for (name, value) in prototype(function)
         ], **kws 
