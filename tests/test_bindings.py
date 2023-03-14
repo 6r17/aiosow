@@ -41,7 +41,7 @@ async def test_wrapper_decorator():
 
 
 @pytest.mark.asyncio
-async def test_each_with_fixture():
+async def test_each_decorator():
     async def count():
         for i in range(3):
             yield i
