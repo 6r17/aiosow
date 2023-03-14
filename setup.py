@@ -10,12 +10,11 @@ setup(
             'stims = stims.command:run',
         ],
     },
-    install_requires=[
-        'aiohttp',
-        'aiojobs',
-        'aiohttp-devtools',
-    ],
+    install_requires=[],
     extras_require={
+        "aiohttp":[
+            'aiohttp',
+        ],
         "dev": [
             "pytest",
             "pytest-mock",
