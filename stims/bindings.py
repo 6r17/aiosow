@@ -45,6 +45,7 @@ def delay(seconds: float):
         return wrapper
     return decorator
 
+@decorator
 def wrap(wrapper_function: Callable):
     def decorator(function: Callable):
         @functools.wraps(function)
@@ -54,8 +55,10 @@ def wrap(wrapper_function: Callable):
         return execute
     return decorator
 
+@decorator
 def each(iterated_generator: Callable):
     def decorator(function: Callable):
+        @functools.wraps(function)
         async def execute(*args, **kwargs):
             iterated = await autofill(iterated_generator, args=args, kwargs=kwargs)
             tasks = []
