@@ -1,7 +1,11 @@
 
 import time
 import pytest
-from stims.bindings import delay, wrap
+from stims.bindings import delay, wrap, each
+
+from typing import Callable
+
+
 
 @pytest.fixture
 def synchronous_function():
@@ -34,3 +38,15 @@ async def test_delay_decorator(synchronous_function, asynchronous_function):
 @pytest.mark.asyncio
 async def test_wrapper_decorator():
     assert await wrap(lambda a: { "test": a })(lambda : 2)() == { "test": 2 }
+
+
+@pytest.mark.asyncio
+async def test_each_with_fixture():
+    async def count():
+        for i in range(3):
+            yield i
+
+    async def square(n):
+        return n * n
+
+    assert await each(count)(square)() == [0, 1, 4]

@@ -1,5 +1,5 @@
 
-from typing import Callable
+from typing import Callable, Union
 
 import asyncio
 import time
@@ -51,5 +51,16 @@ def wrap(wrapper_function: Callable):
         async def execute(*args, **kwargs):
             result = await autofill(function, args=args, kwargs=kwargs)
             return wrapper_function(result)
+        return execute
+    return decorator
+
+def each(iterated_generator: Callable):
+    def decorator(function: Callable):
+        async def execute(*args, **kwargs):
+            iterated = await autofill(iterated_generator, args=args, kwargs=kwargs)
+            tasks = []
+            async for value in iterated:
+                tasks.append(autofill(function, args=(value,), kwargs=kwargs))
+            return await asyncio.gather(*tasks)
         return execute
     return decorator
