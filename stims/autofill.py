@@ -37,4 +37,4 @@ async def autofill(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
             for (name, value) in prototype(function)
         ], **kws 
     )
-    return await result if inspect.iscoroutinefunction(function) else result
+    return await result if inspect.iscoroutine(result) else result

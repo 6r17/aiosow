@@ -1,30 +1,17 @@
 import pytest
-from aiohttp import web
-from stims.setup import initialize, setup
+from stims.setup import initialize, setup, clear_setups
 
+async def my_init_function_1(foo: dict):
+    foo['key_1'] = 'value_1'
 
-@pytest.fixture
-def __app__():
-    return web.Application()
-
-
-@pytest.fixture
-def mem():
-    return {}
-
-
-@setup
-async def my_init_function_1(mem: dict):
-    mem['key_1'] = 'value_1'
-
-
-@setup
-async def my_init_function_2(mem: dict):
-    mem['key_2'] = 'value_2'
-    raise Exception('Oops!')
-
+async def my_init_function_2(foo: dict):
+    foo['key_2'] = 'value_2'
 
 @pytest.mark.asyncio
-async def test_initialize_runs_setup_functions(mem):
-    await initialize(mem)
-    assert mem == {'key_1': 'value_1', 'key_2': 'value_2'}
+async def test_initialize():
+    kwargs = { 'foo': {} }
+    clear_setups()
+    setup(my_init_function_1)
+    setup(my_init_function_2)
+    await initialize(kwargs)
+    assert kwargs == { 'foo': {'key_1': 'value_1', 'key_2': 'value_2'} }

@@ -4,6 +4,10 @@ from stims.perpetuate import perpetuate
 
 SETUP_FUNCTIONS: List = []
 
+def clear_setups(): # pragma: no cover
+    global SETUP_FUNCTIONS
+    SETUP_FUNCTIONS = []
+
 def setup(func: Callable) -> Callable:
     """
     Decorator to add a function to the list of initialization functions.
@@ -27,7 +31,7 @@ async def initialize(kwargs: Dict) -> List[asyncio.Task]:
     """
     logging.debug(
         'initialize with %s',
-        [f'{fn.__module__}.{fn.__name__}' for fn in SETUP_FUNCTIONS]
+        [f'{fn.__name__}' for fn in SETUP_FUNCTIONS]
     )
     tasks = []
     for setup_func in SETUP_FUNCTIONS:

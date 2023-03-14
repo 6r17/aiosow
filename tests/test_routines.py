@@ -1,6 +1,5 @@
-import aiojobs, pytest
+import pytest
 from stims.routines import *
-from unittest.mock import AsyncMock, patch
 
 @pytest.fixture(autouse=True)
 def do_clear_routines():
@@ -23,7 +22,7 @@ async def test_consume_routines_empty():
     await consume_routines(kwargs={})
 
 @pytest.mark.asyncio
-async def test_comsume_routines_with_a_routine():
+async def test_consume_routines_with_a_routine():
     routine(interval=1, life=1, repeat=False, perpetuate=True)(lambda a: a)
     routine(interval=1, life=1, repeat=False, perpetuate=False)(lambda a: a)
     routine(interval=1, life=0, repeat=True, perpetuate=False)(lambda a: a)
