@@ -19,8 +19,14 @@ async def test_perpetuate():
 
 @pytest.mark.asyncio
 async def test_on(mocker):
-    mem = { 'a': 1 }
+    mem = { 'a': 1, 'b': [] }
     mock = mocker.Mock()
+    mockb = mocker.Mock()
     on('a')(mock)
+    on('b', singularize=True)(mockb)
     assert await perpetuate(lambda: { 'a': 2 }, kwargs=mem)
     mock.assert_called_once()
+    assert await perpetuate(lambda: { 'b': [1, 2] }, kwargs=mem)
+    assert mockb.call_count == 2
+    with pytest.raises(ValueError):
+        await perpetuate(lambda: { 'b': 1 }, kwargs=mem)

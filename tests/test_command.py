@@ -9,4 +9,3 @@ def test_run():
         runner = CliRunner()
         result = runner.invoke(run, ['stims', '-d', '--no_run_forever'])
         assert result.exit_code == 0
-

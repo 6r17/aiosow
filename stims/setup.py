@@ -39,4 +39,5 @@ async def initialize(kwargs: Dict) -> List[asyncio.Task]:
         if asyncio.iscoroutine(result):
             tasks.append(result)
         logging.debug(f'{setup_func.__module__}.{setup_func.__name__} : ok')
+    logging.debug('memory = %s', kwargs)
     return tasks
