@@ -10,7 +10,9 @@ setup(
             'stims = stims.command:run',
         ],
     },
-    install_requires=[],
+    install_requires=[
+        'click'
+    ],
     extras_require={
         "aiohttp":[
             'aiohttp',
@@ -19,7 +21,8 @@ setup(
             "pytest",
             "pytest-mock",
             "pytest-asyncio",
-            "pytest-coverage"
+            "pytest-coverage",
+            "pdoc"
         ]
     }
 )
