@@ -27,7 +27,7 @@ def run(*__args__, **kwargs):
     tasks = loop.run_until_complete(initialize(kwargs))
     loop.run_until_complete(asyncio.gather(*tasks))
     if not kwargs['no_run_forever']:
-        loop.run_forever()
+        loop.run_forever() # pragma: no cover
 
 if __name__ == '__main__':
     run() # pragma: no cover
