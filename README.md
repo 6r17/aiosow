@@ -5,13 +5,13 @@ a high-level Python framework that help write and structure low coupled code.
 ## So what is this ?
 
 Stims is state-machine programmable using decorators. It is meant to help you 
-write uncoupled and unopiniated functionnal code that you can decorate to specify
+write uncoupled and unopiniated functional code that you can decorate to specify
 it's triggering mechanisms.
 
-The idea is that you are writing your implementation just as you would normaly,
+The idea is that you are writing your implementation just as you would normally,
 and use the bindings to specify the events that should trigger it.
 
-The benefit is that you are splitting your buisness-logic from your implementation.
+The benefit is that you are splitting your business-logic from your implementation.
 
 ## Installation
 
