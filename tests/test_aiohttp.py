@@ -1,5 +1,5 @@
 import pytest
-from stims.aiohttp import aiohttp_server
+from aiosow.aiohttp import aiohttp_server
 import asyncio
 
 @pytest.mark.asyncio

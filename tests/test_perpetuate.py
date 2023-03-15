@@ -1,6 +1,6 @@
 import pytest
 
-from stims.perpetuate import perpetuate, on
+from aiosow.perpetuate import perpetuate, on
 
 @pytest.mark.asyncio
 async def test_perpetuate():

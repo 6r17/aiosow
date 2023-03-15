@@ -1,4 +1,4 @@
-from stims.utils import get_value_by_path
+from aiosow.utils import get_value_by_path
 
 def test_get_value_by_path():
     data = {

@@ -11,12 +11,12 @@ and middleware, allowing developers to easily define complex request handling lo
 - [Official website](https://docs.aiohttp.org/en/stable/index.html)
 - [GitHub repository](https://github.com/aio-libs/aiohttp)
 - [Quickstart](https://docs.aiohttp.org/en/stable/client_quickstart.html)
-- [Aiohttp Examples](https://aiohttp-demos.readthedocs.io/en/latest/index.html#aiohttp-demos-polls-beginning)
+- [Examples](https://aiohttp-demos.readthedocs.io/en/latest/index.html#aiohttp-demos-polls-beginning)
 
 # Installation
 
 Even tough this module is available on the base package, aiohttp is an optional
-dependency and need to be installed
+dependency and needs to be installed
 
 ```
 pip3 install aiohttp
@@ -28,7 +28,7 @@ pip3 install aiohttp
 
 
 from aiohttp import web
-from stims.setup import setup
+from aiosow.setup import setup
 
 routes = web.RouteTableDef()
 
@@ -42,3 +42,5 @@ async def aiohttp_server() -> None:
     await runner.setup()
     site = web.TCPSite(runner, 'localhost', 8080)
     return site.start()
+
+__all__ = ['routes']

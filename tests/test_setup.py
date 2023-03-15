@@ -1,5 +1,5 @@
 import pytest
-from stims.setup import initialize, setup, clear_setups
+from aiosow.setup import initialize, setup, clear_setups
 
 async def my_init_function_1(foo: dict):
     foo['key_1'] = 'value_1'

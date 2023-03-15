@@ -1,5 +1,5 @@
 import pytest
-from stims.routines import *
+from aiosow.routines import (routine, clear_routines, get_routines, consume_routines)
 
 @pytest.fixture(autouse=True)
 def do_clear_routines():

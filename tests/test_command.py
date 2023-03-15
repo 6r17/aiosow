@@ -1,11 +1,11 @@
 
-import pytest, warnings
-from click.testing import CliRunner
-from stims.command import run
+import pytest, warnings, subprocess
 
-def test_run():
+@pytest.mark.asyncio
+async def test_run():
     with warnings.catch_warnings():
         warnings.filterwarnings('ignore', category=DeprecationWarning)
-        runner = CliRunner()
-        result = runner.invoke(run, ['stims', '-d', '--no_run_forever'])
-        assert result.exit_code == 0
+        result = subprocess.run(['stims', 'stims.routine', '-d', '--no_run_forever'],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        assert result.returncode == 0

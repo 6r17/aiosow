@@ -1,8 +1,9 @@
 
 import time
 import pytest
-from stims.bindings import delay, wrap, each
+from aiosow.bindings import delay, wrap, each, wire
 
+from unittest.mock import Mock
 from typing import Callable
 
 @pytest.fixture
@@ -16,6 +17,14 @@ def asynchronous_function():
     async def my_asynchronous_function():
         return True
     return my_asynchronous_function
+
+@pytest.mark.asyncio
+async def test_wire_triggers_listeners():
+    mock_listener = Mock()
+    trigger_decorator, listen_decorator = wire()
+    listen_decorator(mock_listener)
+    await trigger_decorator(lambda: 1)()
+    assert mock_listener.call_count == 1
 
 @pytest.mark.asyncio
 async def test_delay_decorator(synchronous_function, asynchronous_function):
@@ -36,7 +45,6 @@ async def test_delay_decorator(synchronous_function, asynchronous_function):
 @pytest.mark.asyncio
 async def test_wrapper_decorator():
     assert await wrap(lambda a: { "test": a })(lambda : 2)() == { "test": 2 }
-
 
 @pytest.mark.asyncio
 async def test_each_decorator():
