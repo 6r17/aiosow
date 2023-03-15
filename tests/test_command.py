@@ -1,12 +1,12 @@
 
-import pytest
-from unittest import mock
-
+import pytest, warnings
 from click.testing import CliRunner
+from stims.command import run
 
-def test_hello_world():
-    with mock.patch('aiohttp.web.run_app') as run_app_mock:
-        from stims.command import run
+def test_run():
+    with warnings.catch_warnings():
+        warnings.filterwarnings('ignore', category=DeprecationWarning)
         runner = CliRunner()
-        runner.invoke(run, ['-d'])
-        assert run_app_mock.called_once()
+        result = runner.invoke(run, ['stims', '-d', '--no_run_forever'])
+        assert result.exit_code == 0
+

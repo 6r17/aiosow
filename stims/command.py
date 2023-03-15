@@ -12,6 +12,9 @@ from stims.setup import initialize
     '-d', '--debug', default=False, is_flag=True, help='Debug mode',
     show_default=True
 )
+@click.option(
+    '--no_run_forever', default=False, is_flag=True, help='Wether it should run forever', show_default=True
+)
 @click.pass_context
 def run(*__args__, **kwargs):
     logging.basicConfig(
@@ -23,7 +26,8 @@ def run(*__args__, **kwargs):
     importlib.import_module(kwargs['path'])
     tasks = loop.run_until_complete(initialize(kwargs))
     loop.run_until_complete(asyncio.gather(*tasks))
-    loop.run_forever()
+    if not kwargs['no_run_forever']:
+        loop.run_forever()
 
 if __name__ == '__main__':
     run() # pragma: no cover
