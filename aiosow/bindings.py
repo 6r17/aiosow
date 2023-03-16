@@ -1,5 +1,5 @@
 
-from typing import Tuple,Callable
+from typing import Tuple, Callable, Any
 
 import asyncio
 import time
@@ -126,10 +126,10 @@ def each(iterated_generator: Callable):
     it first calls `autofill` to fill in any missing arguments, then calls the `iterated_generator` to get an
     async generator, and finally applies the decorated function to each item returned by the generator.
 
-    Args:
+    **Args**:
     - iterated_generator: The async generator to iterate over.
 
-    Returns:
+    **Returns**:
     - A decorator that applies a function to each item returned by the given `iterated_generator`.
     """
     def decorator(function: Callable):
@@ -142,5 +142,20 @@ def each(iterated_generator: Callable):
             return await asyncio.gather(*tasks)
         return execute
     return decorator
+
+def read_only(something: Any) -> Callable:
+    '''
+    Wraps a value into a function and returns a getter to said value.
+
+    **Args**:
+    - something: Any
+
+    **Returns**:
+    - getter: Callable
+    '''
+    def getter():
+        nonlocal something
+        return something
+    return getter
 
 __all__ = ['alias', 'delay', 'wrap', 'each', 'option', 'on', 'setup', 'perpetuate', 'autofill']

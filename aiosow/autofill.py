@@ -3,7 +3,7 @@ await function(*args, **kwargs) -> this doesn't work if the function doesnt take
 '''
 from typing import Any, Callable, List
 
-import inspect, logging
+import inspect 
 
 ALIASES = {}
 
@@ -91,7 +91,6 @@ async def autofill(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
         given_args = [arg for arg in given_args if arg != Sentinel]
         has_varargs = any(param.kind == inspect.Parameter.VAR_POSITIONAL for param in inspect.signature(function).parameters.values())
         given_args = given_args if not has_varargs else given_args + list(argscopy)
-    logging.debug('autofill %s => %s', name, given_args)
     result = function(*given_args, **kws )
     return await result if inspect.iscoroutine(result) else result
 

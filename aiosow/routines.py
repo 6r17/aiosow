@@ -1,4 +1,3 @@
-import logging
 from typing import Callable
 
 import asyncio
@@ -60,7 +59,6 @@ async def consume_routines(kwargs):
 
 async def consumer(kwargs):
     while True:
-        logging.debug('consumer heart-beat')
         await consume_routines(kwargs)
 
 @setup

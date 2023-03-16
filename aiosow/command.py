@@ -20,8 +20,9 @@ def run():
     parser.add_argument('--no_run_forever', default=False, action='store_true', help='Whether it should run forever')
     try:
         importlib.import_module(sys.argv[1])
-    except:
-        pass
+    except Exception as e:
+        logging.error('An error occured opening the composition')
+        raise (e)
     for name, args in options().items():
         parser.add_argument(f'--{name}', **args)
     kwargs = vars(parser.parse_args())
