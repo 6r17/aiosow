@@ -10,16 +10,16 @@ activate:
 	@echo '. env/bin/activate'
 
 test:
-	env/bin/pytest -s --cov=sow --cov-report=term-missing
+	env/bin/pytest -s --cov=aiosow --cov-report=term-missing
 
 report:
 	env/bin/coverage report
 
 pydoc:
-	cd sow ; ../env/bin/python3.10 -m pydoc -b -p 9000 sow
+	cd aiosow ; ../env/bin/python3.10 -m pydoc -b -p 9000 aiosow
 
 pdoc:
-	env/bin/pdoc sow !sow.command !sow.utils -o docs/
+	env/bin/pdoc aiosow !aiosow.command !aiosow.utils !aiosow.options !aiosow.setup !aiosow.perpetuate !aiosow.autofill -o docs/
 
 upload:
 	env/bin/pip3 install twine

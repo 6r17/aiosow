@@ -11,17 +11,17 @@ ONS = {}
 def on(variable_name: str, condition: Callable|None=None, singularize=False):
     """
     Decorator function that registers a function to be executed when a variable 
-    of specified name is registered.
+    of specified name is perpetuated in memory.
 
-    Args:
+    **Args**:
     - variable_name (str): Name of the event to listen to.
     - condition (Callable|None, optional): Callable object that takes the value of the event as input and returns a boolean indicating whether the registered function should be executed or not. Defaults to None.
     - singularize (bool, optional): Boolean indicating whether the value of the event should be singularized before being passed as an argument to the registered function. If True, the value must be iterable. Defaults to False.
 
-    Returns:
+    **Returns**:
     - The decorated function.
 
-    Example:
+    **Example**:
     ```
     @on('pages')
     async def manage_pages(*args, **kwargs):
@@ -42,15 +42,15 @@ async def perpetuate(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
     """
     Asynchronously executes a function and perpetuates its effects in memory.
 
-    Args:
+    **Args**:
     - function (Callable): The function to be executed.
     - args (Any, optional): Positional arguments to be passed to the function. Defaults to an empty list.
     - kwargs: The memory 
 
-    Returns:
+    **Returns**:
     - The mutated keyword arguments of the executed function.
 
-    Example:
+    **Example**:
     ```
     async def update_user_info(user_id, name=None, email=None):
         # code to update user info in the database

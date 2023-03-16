@@ -7,7 +7,11 @@ import functools
 
 from functools import wraps
 
-from aiosow.autofill import autofill
+from aiosow.autofill import autofill, alias
+from aiosow.options import option
+from aiosow.perpetuate import on, perpetuate
+from aiosow.setup import setup
+
 
 def wire() -> Tuple[Callable, Callable]:
     """
@@ -17,7 +21,7 @@ def wire() -> Tuple[Callable, Callable]:
     with the `listen_decorator` decorator. The `listen_decorator` decorator registers a function to be called 
     whenever a function decorated with `trigger_decorator` is called.
 
-    Example usage:
+    **Example**:
     ```
     wire_trigger, wire_listen = wire()
 
@@ -33,7 +37,7 @@ def wire() -> Tuple[Callable, Callable]:
     In the above example, calling `my_async_function()` will print "my_async_function called", and 
     then call `my_function()` to print "my_function called".
 
-    Returns:
+    **Returns**:
     - A tuple containing two decorators: `trigger_decorator` and `listen_decorator`.
     """
     listeners = []
@@ -66,13 +70,13 @@ def delay(seconds: float):
     where `seconds` is a fixed delay time in seconds and `exec_time(function)` 
     is the time taken by the wrapped function to execute.
 
-    Args:
+    **Args**:
     - seconds: The fixed delay time in seconds.
 
-    Returns:
+    **Returns**:
     - A decorator that can be used to wrap an asynchronous function.
 
-    Example usage:
+    **Example**:
     ```
         @delay(2.5)
         async def my_function():
@@ -138,3 +142,5 @@ def each(iterated_generator: Callable):
             return await asyncio.gather(*tasks)
         return execute
     return decorator
+
+__all__ = ['alias', 'delay', 'wrap', 'each', 'option', 'on', 'setup', 'perpetuate', 'autofill']
