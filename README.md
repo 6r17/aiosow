@@ -11,12 +11,10 @@ With procedural programming, large codebases can quickly become unmanageable,
 leading to bugs and errors. Event-based programming helps you focus on the desired outcome 
 rather than every single step.
 
-
 ## Efficient, Event-Driven, Modular
 `Aiosow` is designed with high modularity and customizability in mind.
 Our asynchronous base provides unparalleled performance for Python, and the separation of concerns approach 
 allows each part of the codebase to be developed independently.
-
 
 ## Enforced Separation of Concerns 
 
@@ -25,15 +23,21 @@ set of rules for defining their behavior. This enforced structure provides defin
 parts of the codebase, making it easier to maintain and scale. As a result, `aiosow` can provide a set 
 of tools that let developers interconnect and customize multiple compositions with ease.
 
-## Customizable Asynchronous Python Scripts
-`Aiosow` provides decorators and utilities for easy and efficient event triggering implementations.
-This means you can re-write the program's behavior without having to re-write it's technical aspect.
-Express **when** the code should run. `aiosow` enables you to customize your code and build complex
-data pipelines with ease.
+## Customizable Asynchronous State-Machine
+`Aiosow` is a programmable state-machine customizable with decorators and utilities for easy and efficient event triggering implementations.
+State-machines provides a way to manage the flow of a system by storing and managing mutations in the memory. 
+
+- One memory, represented as a `dict`
+- Mutations are the changes, just return a `dict` and you got a valid mutation
+- To bind this function in the state-machine you use `aiosow.bindings`
+
+These bindings allow to program the machine and express when to call the appropriate functions in the correct order, ensuring that the system behaves as expected.
+The state machine is a useful tool for managing complex systems and ensuring that behavior is well-defined and predictable.
+It allows to react to changes in the system and implement logic based on those changes (see `aiosow.bindings.on` for instance).
 
 - `aiosow.bindings` helps you express configurability, further data-piping, time-constraints, and more... 
 - `aiosow.routines` helps you schedule code to flow trough time 
-- `aiosow.aiohttp` to build an API with [aiohttp](https://docs.aiohttp.org/en/stable/)
+- `aiosow.aiohttp` helps with HTTP requests
 
 ## Installation
 
@@ -41,7 +45,7 @@ data pipelines with ease.
 pip install aiosow
 ```
 
-## Command
+## Usage
 
 ```
 aiosow <composition>
@@ -52,6 +56,7 @@ aiosow <composition>
 
 Using `aiosow 'composition_name' -h` will load it's options and display them in 
 the help menu. Those are defined using the `aiosow.options` decorator.
+
 
 ## Contributing
 

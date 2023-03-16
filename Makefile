@@ -19,7 +19,7 @@ pydoc:
 	cd aiosow ; ../env/bin/python3.10 -m pydoc -b -p 9000 aiosow
 
 pdoc:
-	env/bin/pdoc aiosow !aiosow.command !aiosow.utils !aiosow.options !aiosow.setup !aiosow.perpetuate !aiosow.autofill -o docs/
+	env/bin/pdoc aiosow !aiosow.command !aiosow.utils !aiosow.options !aiosow.setup !aiosow.perpetuate !aiosow.autofill -o docs/ --logo './logo.png' --template-dir './doc-template'
 
 upload:
 	env/bin/pip3 install twine

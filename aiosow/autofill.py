@@ -67,6 +67,7 @@ async def autofill(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
             (param_name, None if param.default is inspect.Parameter.empty else param.default)
             for param_name, param in inspect.signature(function).parameters.items()
             if param.kind != inspect.Parameter.VAR_KEYWORD
+            and param.kind != inspect.Parameter.VAR_POSITIONAL
         ]
     
     class Sentinel:
@@ -81,7 +82,6 @@ async def autofill(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
         name = getattr(function, '__name__', None) or str(function)
         kws = kwargs if inspect.getfullargspec(function).varkw else {}
         prot = prototype(function)
-        print(prot)
         given_args = [
             await autofill(ALIASES[name], args=args, kwargs=kwargs) if name in ALIASES else
             argscopy.pop(0) if len(argscopy) > 0 else
@@ -89,6 +89,8 @@ async def autofill(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
             for (name, value) in prot 
         ]
         given_args = [arg for arg in given_args if arg != Sentinel]
+        has_varargs = any(param.kind == inspect.Parameter.VAR_POSITIONAL for param in inspect.signature(function).parameters.values())
+        given_args = given_args if not has_varargs else given_args + list(argscopy)
     logging.debug('autofill %s => %s', name, given_args)
     result = function(*given_args, **kws )
     return await result if inspect.iscoroutine(result) else result
