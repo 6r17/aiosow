@@ -1,15 +1,17 @@
 """
+# aioHTTP
+[![](https://img.shields.io/pypi/v/aiohttp?color=white&style=for-the-badge)](https://pypi.org/project/aiohttp/)
+[![](https://img.shields.io/github/stars/aio-libs/aiohttp?color=white&logo=github&style=for-the-badge)](https://github.com/aio-libs/aiohttp)
+
 `aiohttp` is an asynchronous HTTP client/server framework for Python.
 It provides a client and server API for making HTTP requests and 
 handling HTTP responses, supporting features such as HTTP/1.x and HTTP/2,
 SSL/TLS encryption, cookies, and WebSockets. 
-Aiohttp's server API is built on top of asyncio, allowing it to handle a large 
+`aiohttp`'s server API is built on top of `asyncio`, allowing it to handle a large 
 number of concurrent requests efficiently. It also provides support for routing 
 and middleware, allowing developers to easily define complex request handling logic. 
 
 # Getting started
-- [Official website](https://docs.aiohttp.org/en/stable/index.html)
-- [GitHub repository](https://github.com/aio-libs/aiohttp)
 - [Quickstart](https://docs.aiohttp.org/en/stable/client_quickstart.html)
 - [Examples](https://aiohttp-demos.readthedocs.io/en/latest/index.html#aiohttp-demos-polls-beginning)
 

@@ -1,6 +1,7 @@
 
 from typing import Tuple, Callable, Any
 
+import pdb as _pdb
 import asyncio
 import time
 import functools
@@ -144,18 +145,67 @@ def each(iterated_generator: Callable):
     return decorator
 
 def read_only(something: Any) -> Callable:
-    '''
-    Wraps a value into a function and returns a getter to said value.
+    """
+    Wraps a value in a function.
+
+    **Example**:
+    ```
+    getter = read_only(2)
+    getter() -> 2 
+    ```
+
 
     **Args**:
     - something: Any
 
     **Returns**:
     - getter: Callable
-    '''
+    """
     def getter():
         nonlocal something
         return something
     return getter
 
-__all__ = ['alias', 'delay', 'wrap', 'each', 'option', 'on', 'setup', 'perpetuate', 'autofill']
+def debug(trigger: Callable[[Exception, Callable, Tuple], Any]) -> Callable:
+    """
+    Return a decorator that calls `trigger` when the decorated entity raises
+    an error.
+
+    **Example**:
+    ```
+    function_to_debug = debug(pdb)(function_to_debug)
+    ```
+
+    **`trigger` is called with**:
+    - error: Exception
+    - function: Callable
+    - args: tuple
+
+    **Args**:
+    - triggered: Callable
+
+    **Returns**:
+    - decorator: Callable
+    """
+    def decorator(function: Callable) -> Callable:
+        @functools.wraps(function)
+        async def execute(*args, **kwargs):
+            try:
+                return await autofill(function, args=args, kwargs=kwargs)
+            except Exception as e:
+                trigger(e, function, args)
+        return execute
+    return decorator
+
+def pdb(*__args__, **__kwargs__):
+    """
+    Launches pdb.set_trace(), incorporated as a utility function for `aiosow.bindings.debug`
+
+    **Example**:
+    ```
+    function_to_debug = debug(pdb)(function_to_debug)
+    ```
+    """
+    _pdb.set_trace()
+
+__all__ = ['alias', 'delay', 'wrap', 'each', 'option', 'on', 'setup', 'perpetuate', 'autofill', 'read_only', 'debug', 'pdb']

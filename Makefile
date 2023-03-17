@@ -5,6 +5,9 @@ prepare:
 	env/bin/pip3 install -e .
 	env/bin/pip3 install -e ".[dev]"
 	env/bin/pip3 install -e ".[aiohttp]"
+	env/bin/pip3 install -e compositions/playwright 
+	env/bin/pip3 install -e compositions/twitter
+	env/bin/pip3 install -e compositions/exorde 
 
 activate:
 	@echo '. env/bin/activate'
@@ -19,7 +22,7 @@ pydoc:
 	cd aiosow ; ../env/bin/python3.10 -m pydoc -b -p 9000 aiosow
 
 pdoc:
-	env/bin/pdoc aiosow !aiosow.command !aiosow.utils !aiosow.options !aiosow.setup !aiosow.perpetuate !aiosow.autofill -o docs/ --logo './logo.png' --template-dir './doc-template'
+	env/bin/pdoc aiosow !aiosow.command !aiosow.utils !aiosow.options !aiosow.setup !aiosow.perpetuate !aiosow.autofill -o docs/ --logo './logo.png' --template-dir './doc-template' --no-show-source
 
 upload:
 	env/bin/pip3 install twine

@@ -4,7 +4,7 @@ import logging, asyncio, importlib, argparse, sys
 from aiosow.setup import initialize
 from aiosow.options import options
 
-def run():
+def run(composition=None):
     debug = (
         '-d' in sys.argv or 
         '--debug' in sys.argv or 
@@ -14,19 +14,23 @@ def run():
     )
     logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
     parser = argparse.ArgumentParser()
-    parser.add_argument('composition', help='composition to run')
+    if not composition:
+        parser.add_argument('composition', help='composition to run')
     parser.add_argument('-c', '--config', help='Path to configuration file', default='', type=str)
     parser.add_argument('-d', '--debug', default=False, action='store_true', help='Debug mode')
+    parser.add_argument('-la', '--log-autofill', default=False, action='store_true', help='Log.debug every autofill arguments')
     parser.add_argument('--no_run_forever', default=False, action='store_true', help='Whether it should run forever')
     try:
-        importlib.import_module(sys.argv[1])
+        if not composition:
+            composition = sys.argv[1]
+        composition = f'{composition}.bindings' if not '.bindings' in composition else composition
+        importlib.import_module(composition)
     except Exception as e:
         logging.error('An error occured opening the composition')
         raise (e)
     for name, args in options().items():
         parser.add_argument(f'--{name}', **args)
     kwargs = vars(parser.parse_args())
-    
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     tasks = loop.run_until_complete(initialize(kwargs))

@@ -11,13 +11,15 @@
     --code: #f8f8f8;
     --active: #fff598;
 
-    --accent: #eee;
+    --accent: rgba(244,244,244, .5);
     --accent2: #c1c1c1;
 
     --nav-hover: rgba(255, 255, 255, 0.5);
     --name: #0066BB;
     --def: #008800;
     --annotation: #007020;
+
+   --sidebar-width: clamp(15.5rem, 38vw, 27rem) !important; 
 }
 
 nav.pdoc {
@@ -26,5 +28,48 @@ nav.pdoc {
 }
 
 .attribution {
+    display: none !important;
+}
+
+.logo {
+    opacity: .67 !important;
+    max-height: 25vh !important;
+}
+
+main, header {
+    width: calc(58rem + var(--sidebar-width)) !important;
+}
+
+h2 {
+    margin-top: 70px !important;
+    font-weight: bold;
+}
+
+h5 {
+    margin-top: 80px !important;
+}
+
+input {
+    background: none !important;
+    border: none !important;
+    border-bottom: solid .5px !important;
+    padding: 10px !important;
+    border-color:rgba(33,33,33,.3) !important;
+}
+
+.modulename {
+    display: none !important;
+}
+
+pre {
+    border: solid 0px !important;
+    padding: 20px !important;
+    background: rgba(33,33,33,.9) !important;
+}
+pre code {
+    color: white !important;
+}
+
+a[href="https://exorde-labs.github.io/aiosow"] img {
     display: none !important;
 }
