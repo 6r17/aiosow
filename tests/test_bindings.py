@@ -1,10 +1,9 @@
 
 import time
 import pytest
-from aiosow.bindings import delay, wrap, each, wire
+from aiosow.bindings import delay, wrap, each, wire, accumulator
 
 from unittest.mock import Mock
-from typing import Callable
 
 @pytest.fixture
 def synchronous_function():
@@ -21,9 +20,20 @@ def asynchronous_function():
 @pytest.mark.asyncio
 async def test_wire_triggers_listeners():
     mock_listener = Mock()
+    mock_listener.__name__ = 'mock'
     trigger_decorator, listen_decorator = wire()
     listen_decorator(mock_listener)
     await trigger_decorator(lambda: 1)()
+    assert mock_listener.call_count == 1
+
+@pytest.mark.asyncio
+async def test_accumulator():
+    mock_listener = Mock()
+    mock_listener.__name__ = 'mock'
+    batched = accumulator(2)(mock_listener)
+    await batched(1)
+    assert mock_listener.call_count == 0
+    await batched(2)
     assert mock_listener.call_count == 1
 
 @pytest.mark.asyncio

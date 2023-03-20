@@ -20,6 +20,8 @@ setup(
             "pytest-mock",
             "pytest-asyncio",
             "pytest-coverage",
+        ],
+        "doc": [
             "pdoc"
         ]
     }

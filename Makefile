@@ -5,9 +5,12 @@ prepare:
 	env/bin/pip3 install -e .
 	env/bin/pip3 install -e ".[dev]"
 	env/bin/pip3 install -e ".[aiohttp]"
-	env/bin/pip3 install -e compositions/playwright 
-	env/bin/pip3 install -e compositions/twitter
-	env/bin/pip3 install -e compositions/exorde 
+	env/bin/pip3 install -e ".[doc]"
+
+install:
+	pip3 install -e ".[dev]"
+	pip3 install -e ".[aiohttp]"
+	pip3 install -e ".[doc]"
 
 activate:
 	@echo '. env/bin/activate'

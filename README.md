@@ -5,7 +5,7 @@
 [![Documentation](https://img.shields.io/badge/-documentation-white?style=for-the-badge)](https://exorde-labs.github.io/aiosow)
 
 ## Streamline your Python Data Pipeline in one package
-Building a customizable all-in-one package that does api, scraping and integrate ia toolkits is hard.
+Building a customizable all-in-one package that does api, scraping and integrates ai toolkits is hard.
 
 `aiosow` simplifies the development of complex data pipelines for your team. 
 With procedural programming, large codebases can quickly become unmanageable, 
@@ -59,8 +59,8 @@ def get_data():
 def capitalize(s: str):
     return s.capitalize()
 ```
-##### 2. **Behaviors are defined in a `behavior.py` file using `aiosow.bindings` to link them**
-- `behavior` refers to the overall conduct and purpose of a software system, from the user's perspective. It focuses on the **"what"** of software development.
+##### 2. **Behaviors are defined in a `behavior.py` file using `aiosow.bindings`**
+- `behavior` refers to the overall conduct and purpose of a software system, from the user's perspective. It focuses on the **"what"** and **"when"** of software development.
 
 **Example of `behavior`**:
 ```
@@ -77,7 +77,7 @@ on_data_ready_do(print)                        # anytime data is ready print it
 ##### 3. **Function prototypes use a strict naming consistency**
 `aiosow.bindings.autofill` is the backone of the library used trough all tools to cast a function.
 
-It is doing so by filling missing arguments based on their prototype and `memory`.
+It is doing so by filling missing arguments from their prototype based on `memory`.
 
 **Example**:
 ```
