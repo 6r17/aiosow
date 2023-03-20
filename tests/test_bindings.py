@@ -66,3 +66,11 @@ async def test_each_decorator():
         return n * n
 
     assert await each(count)(square)() == [0, 1, 4]
+
+@pytest.mark.asyncio
+async def test_each_without_argument():
+    '''This test each withtout any transformation'''
+    async def square(n):
+        return n * n
+
+    assert await each()(square)([0, 1, 2]) == [0, 1, 4]

@@ -4,7 +4,7 @@ from typing import Tuple, Callable, Any
 import pdb as _pdb
 import asyncio
 import time
-import functools
+import inspect
 
 from functools import wraps
 
@@ -43,11 +43,21 @@ def wire() -> Tuple[Callable, Callable]:
         @wraps(triggerer)
         async def call(*args, **kwargs):
             result = await autofill(triggerer, args=args, kwargs=kwargs)
-            tasks = [
-                asyncio.create_task(
-                    autofill(func, args=[result] + [args], kwargs=kwargs)
-                ) for func in listeners if func
-            ]
+            # if triggerer is a generator we need to iterate over it
+            if inspect.isgenerator(result):
+                tasks = []
+                for val in result:
+                    tasks += [
+                        asyncio.create_task(
+                            autofill(func, args=[val] + [args], kwargs=kwargs)
+                        ) for func in listeners if func
+                    ]
+            else:
+                tasks = [
+                    asyncio.create_task(
+                        autofill(func, args=[result] + [args], kwargs=kwargs)
+                    ) for func in listeners if func
+                ]
             await asyncio.gather(*tasks)
             return result
         return call
@@ -96,7 +106,7 @@ def delay(seconds: float):
     ```
     """
     def decorator(function: Callable):
-        @functools.wraps(function)
+        @wraps(function)
         async def wrapper(*args, **kwargs):
             start_time = time.monotonic()
             result = await autofill(function, args=args, kwargs=kwargs)
@@ -121,40 +131,49 @@ def wrap(wrapper_function: Callable):
         `wrapper_function`.
     """
     def decorator(function: Callable):
-        @functools.wraps(function)
+        @wraps(function)
         async def execute(*args, **kwargs):
             result = await autofill(function, args=args, kwargs=kwargs)
             return wrapper_function(result)
         return execute
     return decorator
 
-def each(iterated_generator: Callable):
-    """
-    Returns a decorator that applies a function to each item returned by an
-    async generator.
 
-    The returned decorator can be used to decorate an async function. When the
-    decorated function is called, it first calls `autofill` to fill in any
-    missing arguments, then calls the `iterated_generator` to get an async
-    generator, and finally applies the decorated function to each item returned
-    by the generator.
+def each(iter:Callable|None=None):
+    """
+    Applies a function to each item in :
+        - result of iter
+        or
+        - first argument passed to the resulting function
 
     **Args**:
-    - iterated_generator: The async generator to iterate over.
+    - iter: The async generator to iterate over.
 
     **Returns**:
     - A decorator that applies a function to each item returned by the given
-        `iterated_generator`.
+        `iter`.
     """
     def decorator(function: Callable):
-        @functools.wraps(function)
+        @wraps(function)
         async def execute(*args, **kwargs):
-            iterated = await autofill(
-                iterated_generator, args=args, kwargs=kwargs
-            )
             tasks = []
-            async for value in iterated:
-                tasks.append(autofill(function, args=(value,), kwargs=kwargs))
+            if iter:
+                subjects = await autofill(
+                    iter, args=args, kwargs=kwargs
+                )
+                async for value in subjects:
+                    tasks.append(
+                        autofill(
+                            function, args=(value,), kwargs=kwargs
+                        )
+                    )
+            else:
+                args = list(args)
+                iterated = args.pop()
+                for value in iterated:
+                    tasks.append(autofill(
+                        function, args=(value, args), kwargs=kwargs)
+                    )
             return await asyncio.gather(*tasks)
         return execute
     return decorator
@@ -168,8 +187,6 @@ def read_only(something: Any) -> Callable:
     getter = read_only(2)
     getter() -> 2 
     ```
-
-
     **Args**:
     - something: Any
 
@@ -203,7 +220,7 @@ def debug(trigger: Callable[[Exception, Callable, Tuple], Any]) -> Callable:
     - decorator: Callable
     """
     def decorator(function: Callable) -> Callable:
-        @functools.wraps(function)
+        @wraps(function)
         async def execute(*args, **kwargs):
             try:
                 return await autofill(function, args=args, kwargs=kwargs)
@@ -223,7 +240,6 @@ def pdb(*__args__, **__kwargs__):
     """
     _pdb.set_trace()
 
-
 def make_async(function: Callable) -> Callable:
     '''
     Make a synchronous function run in it's own thread
@@ -240,7 +256,6 @@ def make_async(function: Callable) -> Callable:
             None, function, (args, kwargs)
         )
     return wrapper
-
 
 __all__ = [
     'alias', 'delay', 'wrap', 'each', 'option', 'on', 'setup', 'perpetuate',
