@@ -57,7 +57,8 @@ async def perpetuate(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
         return {'name': name, 'email': email}
 
     updated_values = await perpetuate(update_user_info, args=[123], kwargs={'name': 'John'})
-    # updated_values will be {'name': 'John', 'email': None} (assuming the original value of email was None)
+    # updated_values will be {'name': 'John', 'email': None}
+    # (assuming the original value of email was None)
     ```
     """
     update = await autofill(function, args=args, kwargs=kwargs)

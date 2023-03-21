@@ -33,7 +33,41 @@ def wire() -> Tuple[Callable, Callable]:
     @wire_trigger
     async def my_async_function():
         print("my_async_function called")
+
+    await my_async_function()
+
+    # will result with
+
+    > my_async_function_called
+    > my_function_called
     ```
+
+    If the trigger function is a [`generator`](https://docs.python.org/3/glossary.html#term-generator), `wire` wil iterate over it
+    and generate a singularized task for every element. [`generator`](https://docs.python.org/3/glossary.html#term-generator)
+    are function which returns a generator iterator. It looks like a normal function except that it contains yield expressions for producing a series of values usable in a for-loop or that can be retrieved one at a time with the next() function.
+
+    **Example**:
+    ```
+    wire_trigger, wire_listen = wire()
+
+    @wire_listen
+    def my_function(i):
+        print(f"my_function called with {i}")
+
+    @wire_trigger
+    async def my_async_function(size):
+        for i in range(size):
+            yield i
+
+
+    await my_async_function(2)
+
+    # will result with
+
+    > my_function_called with 0
+    > my_function_called with 1
+    ```
+
 
     **Returns**:
     - A tuple of two decorators: `trigger_decorator` and `listen_decorator`.
@@ -82,7 +116,7 @@ def accumulator(size: int) -> Callable:
         return execute
     return decorator
 
-def delay(seconds: float):
+def delay(seconds: float) -> Callable:
     """
     Makes sure the function takes at least `seconds` to run.
     It delays the execution of an asynchronous function by 
@@ -246,9 +280,10 @@ def make_async(function: Callable) -> Callable:
     using `run_in_executor`.
 
     **args**:
-        - function: Callable
+    - function: Callable
+
     **returns**:
-        - decorated: Callable
+    - Async Callable
     '''
     async def wrapper(*args, **kwargs):
         loop = asyncio.get_event_loop()
@@ -258,6 +293,6 @@ def make_async(function: Callable) -> Callable:
     return wrapper
 
 __all__ = [
-    'alias', 'delay', 'wrap', 'each', 'option', 'on', 'setup', 'perpetuate',
-    'autofill', 'read_only', 'debug', 'pdb', 'accumulator'
+    'alias', 'accumulator', 'autofill', 'delay', 'debug', 'each', 'make_async',
+    'on', 'option', 'pdb', 'perpetuate', 'read_only', 'setup', 'wrap', 'wire' 
 ]

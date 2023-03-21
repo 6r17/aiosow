@@ -139,7 +139,8 @@ This ensures
 
 `compositions` implementations should not contain synchronous code that blocks the main event loop, which could cause the entire application to freeze.
 
-Instead, all I/O operations, heavy computations and blocking tasks should be executed asynchronously using the async/await syntax. This will ensure that the event loop remains responsive and can process other tasks efficiently.
+Instead, all I/O operations, heavy computations and blocking tasks should be executed asynchronously using the `aiosow.bindings.make_async` decorator. This will ensure that the event loop remains responsive and can process other tasks efficiently.
+
 
 ## Usage
 

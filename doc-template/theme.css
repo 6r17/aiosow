@@ -40,7 +40,7 @@ main, header {
     width: calc(58rem + var(--sidebar-width)) !important;
 }
 
-h2 {
+main h2 {
     margin-top: 70px !important;
     font-weight: bold;
 }
@@ -64,12 +64,16 @@ input {
 pre {
     border: solid 0px !important;
     padding: 20px !important;
-    background: rgba(33,33,33,.9) !important;
-}
-pre code {
-    color: white !important;
 }
 
 a[href="https://exorde-labs.github.io/aiosow"] img {
     display: none !important;
+}
+
+main .function {
+    background: none !important;
+    border-top: solid .5px !important;
+    border-color: rgba(33,33,33,.2) !important;
+    margin-top: 35px !important;
+    padding: 20px !important;
 }
