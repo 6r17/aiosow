@@ -1,6 +1,5 @@
 import pytest
-from aiosow.aiohttp import aiohttp_server
-import asyncio
+from aiosow.http import aiohttp_server
 
 @pytest.mark.asyncio
 async def test_app_factory():
