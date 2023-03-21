@@ -57,12 +57,12 @@ async def consume_routines(kwargs):
             else:
                 ROUTINES.remove(routine)
 
-async def consumer(kwargs):
+async def consumer(kwargs): # pragma: no cover
     while True:
         await consume_routines(kwargs)
 
 @setup
-async def spawn_consumer(**kwargs):
+async def spawn_consumer(**kwargs): # pragma: no cover
     return asyncio.create_task(consumer(kwargs))
 
 __all__ = ['routine']
