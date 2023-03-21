@@ -28,14 +28,13 @@ pip3 install aiohttp
 
 """
 
-
+import aiohttp
 from aiohttp import web
-from aiosow.setup import setup
 
 routes = web.RouteTableDef()
 
-@setup
-async def aiohttp_server() -> None:
+
+async def aiohttp_server():
     """Set up and start an aiohttp server with the specified routes."""
     global routes
     app = web.Application()
@@ -45,4 +44,16 @@ async def aiohttp_server() -> None:
     site = web.TCPSite(runner, 'localhost', 8080)
     return site.start()
 
-__all__ = ['routes']
+
+async def aiohttp_session():
+    """
+    ClientSession is the heart and the main entry point for all client API 
+    operations.
+
+    Create the session first, use the instance for performing HTTP requests and
+    initiating WebSocket connections.
+
+    The session contains a cookie storage and connection pool, thus cookies and
+    connections are shared between HTTP requests sent by the same session.
+    """
+    return aiohttp.ClientSession()

@@ -78,21 +78,22 @@ def wire() -> Tuple[Callable, Callable]:
         async def call(*args, **kwargs):
             result = await autofill(triggerer, args=args, kwargs=kwargs)
             # if triggerer is a generator we need to iterate over it
-            if inspect.isgenerator(result):
-                tasks = []
-                for val in result:
-                    tasks += [
+            if result:
+                if inspect.isgenerator(result):
+                    tasks = []
+                    for val in result:
+                        tasks += [
+                            asyncio.create_task(
+                                autofill(func, args=[val] + [args], kwargs=kwargs)
+                            ) for func in listeners if func
+                        ]
+                else:
+                    tasks = [
                         asyncio.create_task(
-                            autofill(func, args=[val] + [args], kwargs=kwargs)
+                            autofill(func, args=[result] + [args], kwargs=kwargs)
                         ) for func in listeners if func
                     ]
-            else:
-                tasks = [
-                    asyncio.create_task(
-                        autofill(func, args=[result] + [args], kwargs=kwargs)
-                    ) for func in listeners if func
-                ]
-            await asyncio.gather(*tasks)
+                await asyncio.gather(*tasks)
             return result
         return call
 
@@ -102,17 +103,25 @@ def wire() -> Tuple[Callable, Callable]:
 
     return (trigger_decorator, listen_decorator)
 
-def accumulator(size: int) -> Callable:
+def accumulator(size: int|str) -> Callable:
     """
-    Batch the calls to a function. Triggers it when the bucket size is reached
+    Batch the calls to a function. Triggers it when the bucket size is reached.
+    If the size passed is a string, accumulator will fetch the batch size from
+    `memory`.
     """
     def decorator(function: Callable) -> Callable:
         bucket = []
         async def execute(*args, **kwargs) -> Any:
             nonlocal bucket
+            if isinstance(size, str):
+                _size = kwargs[size]
+            else:
+                _size = size
             bucket += ((args, kwargs), )
-            if len(bucket) >= size:
-                return await autofill(function, args=[bucket], kwargs=kwargs)
+            if len(bucket) >= _size:
+                argument = [bucket]
+                bucket = []
+                return await autofill(function, args=argument, kwargs=kwargs)
         return execute
     return decorator
 
@@ -171,7 +180,6 @@ def wrap(wrapper_function: Callable):
             return wrapper_function(result)
         return execute
     return decorator
-
 
 def each(iter:Callable|None=None):
     """
