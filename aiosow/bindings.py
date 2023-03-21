@@ -84,13 +84,13 @@ def wire() -> Tuple[Callable, Callable]:
                     for val in result:
                         tasks += [
                             asyncio.create_task(
-                                autofill(func, args=[val] + [args], kwargs=kwargs)
+                                autofill(func, args=[val], kwargs=kwargs)
                             ) for func in listeners if func
                         ]
                 else:
                     tasks = [
                         asyncio.create_task(
-                            autofill(func, args=[result] + [args], kwargs=kwargs)
+                            autofill(func, args=[result], kwargs=kwargs)
                         ) for func in listeners if func
                     ]
                 await asyncio.gather(*tasks)
@@ -117,11 +117,11 @@ def accumulator(size: int|Callable) -> Callable:
                 _size = size(kwargs)
             else:
                 _size = size
-            bucket += ((args, kwargs), )
+            bucket += args
             if len(bucket) >= _size:
-                argument = [bucket]
+                argument = bucket
                 bucket = []
-                return await autofill(function, args=argument, kwargs=kwargs)
+                return await autofill(function, args=[argument], kwargs=kwargs)
         return execute
     return decorator
 

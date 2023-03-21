@@ -91,8 +91,10 @@ async def autofill(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
         given_args = [arg for arg in given_args if arg != Sentinel]
         has_varargs = any(param.kind == inspect.Parameter.VAR_POSITIONAL for param in inspect.signature(function).parameters.values())
         given_args = given_args if not has_varargs else given_args + list(argscopy)
-    logging.debug('%s(%s, %s)', name, given_args, kwargs)
-    result = function(*given_args, **kws )
-    return await result if inspect.iscoroutine(result) else result
+    try:
+        result = function(*given_args, **kws )
+        return await result if inspect.iscoroutine(result) else result
+    except Exception as err:
+        logging.error(f'{name}({given_args}): {err}')
 
 __all__ = ['alias', 'autofill']

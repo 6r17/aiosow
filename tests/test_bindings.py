@@ -27,6 +27,29 @@ async def test_wire_triggers_listeners():
     assert mock_listener.call_count == 1
 
 @pytest.mark.asyncio
+async def test_wire_chain():
+    mock_start = Mock()
+    mock_start.__name__ = 'mock-start'
+    mock_end = Mock()
+    mock_end.__name__ = 'mock-end'
+    a_trigger_on, a_on_trigger_do = wire()
+    b_trigger_on, b_on_trigger_do = wire()
+
+    trigger = a_trigger_on(mock_start)
+    value_trigger = a_trigger_on(lambda value: value)
+
+    a_on_trigger_do(b_trigger_on(lambda value: value))
+    b_on_trigger_do(mock_end)
+
+    await trigger()
+    assert mock_start.call_count == 1
+    assert mock_end.call_count == 1
+
+    await value_trigger(2)
+    assert mock_end.call_count == 2
+    mock_end.assert_called_with(2)
+
+@pytest.mark.asyncio
 async def test_accumulator():
     mock_listener = Mock()
     mock_listener.__name__ = 'mock'
