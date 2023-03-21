@@ -103,7 +103,7 @@ def wire() -> Tuple[Callable, Callable]:
 
     return (trigger_decorator, listen_decorator)
 
-def accumulator(size: int|str) -> Callable:
+def accumulator(size: int|Callable) -> Callable:
     """
     Batch the calls to a function. Triggers it when the bucket size is reached.
     If the size passed is a string, accumulator will fetch the batch size from
@@ -113,8 +113,8 @@ def accumulator(size: int|str) -> Callable:
         bucket = []
         async def execute(*args, **kwargs) -> Any:
             nonlocal bucket
-            if isinstance(size, str):
-                _size = kwargs[size]
+            if isinstance(size, Callable):
+                _size = size(kwargs)
             else:
                 _size = size
             bucket += ((args, kwargs), )
