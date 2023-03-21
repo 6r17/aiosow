@@ -16,7 +16,7 @@ import logging
 
 OPTIONS = {}
 
-def option(name: str, **kwargs): # pragma: no test
+def option(name: str, **kwargs): # pragma: no cover
     '''
     Register an argparse option to be available using the command-line.
 
@@ -28,7 +28,7 @@ def option(name: str, **kwargs): # pragma: no test
     logging.debug('added new option %s', name)
     OPTIONS[name] = kwargs
 
-def options(): # pragma: no test
+def options(): # pragma: no cover
     global OPTIONS
     return OPTIONS
 
