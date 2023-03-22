@@ -28,8 +28,6 @@ jobs:
       - run: pip install -e ".[aiohttp]"
       - run: pip install -e ".[doc]"
 
-      # ADJUST THIS: build your documentation into docs/.
-      # We use a custom build script for pdoc itself, ideally you just run `pdoc -o docs/ ...` here.
       - run: pdoc aiosow !aiosow.command !aiosow.utils !aiosow.options !aiosow.setup !aiosow.perpetuate !aiosow.autofill -o docs/ --logo 'https://exorde-labs.github.io/aiosow/logo.png' -t './doc-template' --no-show-source
       - run: cp logo.png docs/logo.png
 

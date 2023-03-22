@@ -15,8 +15,13 @@ def on(variable_name: str, condition: Callable|None=None, singularize=False):
 
     **Args**:
     - variable_name (str): Name of the event to listen to.
-    - condition (Callable|None, optional): Callable object that takes the value of the event as input and returns a boolean indicating whether the registered function should be executed or not. Defaults to None.
-    - singularize (bool, optional): Boolean indicating whether the value of the event should be singularized before being passed as an argument to the registered function. If True, the value must be iterable. Defaults to False.
+    - condition (Callable|None, optional): Callable object that takes the value
+        of the event as input and returns a boolean indicating whether the
+        registered function should be executed or not. Defaults to None.
+    - singularize (bool, optional): Boolean indicating whether the value of the
+        event should be singularized before being passed as an argument to the
+        registered function. If True, the value must be iterable. Defaults to
+        False.
 
     **Returns**:
     - The decorated function.
@@ -44,7 +49,8 @@ async def perpetuate(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
 
     **Args**:
     - function (Callable): The function to be executed.
-    - args (Any, optional): Positional arguments to be passed to the function. Defaults to an empty list.
+    - args (Any, optional): Positional arguments to be passed to the function.
+        Defaults to an empty list.
     - kwargs: The memory 
 
     **Returns**:
@@ -56,7 +62,9 @@ async def perpetuate(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
         # code to update user info in the database
         return {'name': name, 'email': email}
 
-    updated_values = await perpetuate(update_user_info, args=[123], kwargs={'name': 'John'})
+    updated_values = await perpetuate(
+        update_user_info, args=[123], kwargs={'name': 'John'}
+    )
     # updated_values will be {'name': 'John', 'email': None}
     # (assuming the original value of email was None)
     ```
@@ -65,7 +73,7 @@ async def perpetuate(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
     if isinstance(update, dict):
         kwargs.update(update)
         logging.debug('Mutation = %s', json.dumps(update, indent=4, default=lambda a: str(a)))
-        logging.debug('Memory = %s', json.dumps(kwargs, indent=4, default=lambda a: str(a)))
+        # logging.debug('Memory = %s', json.dumps(kwargs, indent=4, default=lambda a: str(a)))
         for key, value in update.items():
             if key in ONS:
                 for (condition, func, singularize) in ONS[key]:
