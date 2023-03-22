@@ -94,7 +94,7 @@ async def autofill(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
     try:
         result = function(*given_args, **kws )
         return await result if inspect.iscoroutine(result) else result
-    except Exception as err:
+    except Exception as err: # pragma: no cover
         logging.error(f'{name}({given_args}): {err}')
 
 __all__ = ['alias', 'autofill']

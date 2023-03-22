@@ -106,8 +106,8 @@ def wire() -> Tuple[Callable, Callable]:
 def accumulator(size: int|Callable) -> Callable:
     """
     Batch the calls to a function. Triggers it when the bucket size is reached.
-    If the size passed is a string, accumulator will fetch the batch size from
-    `memory`.
+    If the size passed is a `Callable`, accumulator will call it with `memory`
+    to get the size.
     """
     def decorator(function: Callable) -> Callable:
         bucket = []
@@ -129,11 +129,9 @@ def delay(seconds: float) -> Callable:
     """
     Makes sure the function takes at least `seconds` to run.
     It delays the execution of an asynchronous function by 
-    ```
-    seconds - exec_time(function)
-    ```
-    where `seconds` is a fixed delay time in seconds and `exec_time(function)` 
-    is the time taken by the wrapped function to execute.
+    `seconds - exec_time(function)` where `seconds` is a fixed delay time in 
+    seconds and `exec_time(function)` is the time taken by the wrapped function
+    to execute.
 
     **Args**:
     - seconds: The fixed delay time in seconds.

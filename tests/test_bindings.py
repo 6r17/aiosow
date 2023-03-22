@@ -27,6 +27,18 @@ async def test_wire_triggers_listeners():
     assert mock_listener.call_count == 1
 
 @pytest.mark.asyncio
+async def test_wire_triggers_with_generator():
+    mock_listener = Mock()
+    mock_listener.__name__ = 'mock'
+    trigger_decorator, listen_decorator = wire()
+    listen_decorator(mock_listener)
+    def generator():
+        for i in range(3):
+            yield i
+    await trigger_decorator(generator)()
+    assert mock_listener.call_count == 3
+
+@pytest.mark.asyncio
 async def test_wire_chain():
     mock_start = Mock()
     mock_start.__name__ = 'mock-start'
