@@ -30,7 +30,7 @@ jobs:
 
       # ADJUST THIS: build your documentation into docs/.
       # We use a custom build script for pdoc itself, ideally you just run `pdoc -o docs/ ...` here.
-      - run: pdoc aiosow !aiosow.command !aiosow.utils !aiosow.options !aiosow.setup !aiosow.perpetuate !aiosow.autofill -o docs/ --logo './logo.png' -t './doc-template' --no-show-source
+      - run: pdoc aiosow !aiosow.command !aiosow.utils !aiosow.options !aiosow.setup !aiosow.perpetuate !aiosow.autofill -o docs/ --logo 'https://exorde-labs.github.io/aiosow/logo.png' -t './doc-template' --no-show-source
       - run: cp logo.png docs/logo.png
 
       - uses: actions/upload-pages-artifact@v1
