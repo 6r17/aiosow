@@ -7,4 +7,3 @@ def get_value_by_path(data, path, separator="__") -> Any:
         return reduce(lambda d, key: d[int(key)] if isinstance(d, list) else d[key], keys, data)
     except (KeyError, IndexError, TypeError):
         return None
-

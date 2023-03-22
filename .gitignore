@@ -2,3 +2,7 @@
 env
 *.pyc
 stims.egg-info
+build
+docs
+compositions
+aiosow.egg-info/
