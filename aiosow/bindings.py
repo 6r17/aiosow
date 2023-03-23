@@ -76,7 +76,7 @@ def wire() -> Tuple[Callable, Callable]:
     def trigger_decorator(triggerer):
         @wraps(triggerer)
         async def call(*args, **kwargs):
-            result = await autofill(triggerer, args=args, kwargs=kwargs)
+            result = await autofill(triggerer, args=args, memory=kwargs['memory'])
             # if triggerer is a generator we need to iterate over it
             if result:
                 if inspect.isgenerator(result):
@@ -84,13 +84,13 @@ def wire() -> Tuple[Callable, Callable]:
                     for val in result:
                         tasks += [
                             asyncio.create_task(
-                                autofill(func, args=[val], kwargs=kwargs)
+                                autofill(func, args=[val], memory=kwargs['memory'])
                             ) for func in listeners if func
                         ]
                 else:
                     tasks = [
                         asyncio.create_task(
-                            autofill(func, args=[result], kwargs=kwargs)
+                            autofill(func, args=[result], memory=kwargs['memory'])
                         ) for func in listeners if func
                     ]
                 await asyncio.gather(*tasks)
@@ -121,7 +121,7 @@ def accumulator(size: int|Callable) -> Callable:
             if len(bucket) >= _size:
                 argument = bucket
                 bucket = []
-                return await autofill(function, args=[argument], kwargs=kwargs)
+                return await autofill(function, args=[argument], memory=kwargs['memory'])
         return execute
     return decorator
 
@@ -150,7 +150,7 @@ def delay(seconds: float) -> Callable:
         @wraps(function)
         async def wrapper(*args, **kwargs):
             start_time = time.monotonic()
-            result = await autofill(function, args=args, kwargs=kwargs)
+            result = await autofill(function, args=args, memory=kwargs['memory'])
             end_time = time.monotonic()
             exec_time = end_time - start_time
             delay = max(seconds - exec_time, 0)
@@ -174,7 +174,7 @@ def wrap(wrapper_function: Callable):
     def decorator(function: Callable):
         @wraps(function)
         async def execute(*args, **kwargs):
-            result = await autofill(function, args=args, kwargs=kwargs)
+            result = await autofill(function, args=args, memory=kwargs['memory'])
             return wrapper_function(result)
         return execute
     return decorator
@@ -199,12 +199,12 @@ def each(iter:Callable|None=None):
             tasks = []
             if iter:
                 subjects = await autofill(
-                    iter, args=args, kwargs=kwargs
+                    iter, args=args, memory=kwargs['memory']
                 )
                 async for value in subjects:
                     tasks.append(
                         autofill(
-                            function, args=(value,), kwargs=kwargs
+                            function, args=(value,), memory=kwargs['memory']
                         )
                     )
             else:
@@ -212,7 +212,7 @@ def each(iter:Callable|None=None):
                 iterated = args.pop()
                 for value in iterated:
                     tasks.append(autofill(
-                        function, args=(value, args), kwargs=kwargs)
+                        function, args=(value, args), memory=kwargs['memory'])
                     )
             return await asyncio.gather(*tasks)
         return execute
@@ -263,7 +263,7 @@ def debug(trigger: Callable[[Exception, Callable, Tuple], Any]) -> Callable:
         @wraps(function)
         async def execute(*args, **kwargs):
             try:
-                return await autofill(function, args=args, kwargs=kwargs)
+                return await autofill(function, args=args, memory=kwargs['memory'])
             except Exception as e:
                 trigger(e, function, args)
         return execute

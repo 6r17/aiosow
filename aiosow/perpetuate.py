@@ -29,7 +29,7 @@ def on(variable_name: str, condition: Callable|None=None, singularize=False):
     **Example**:
     ```
     @on('pages')
-    async def manage_pages(*args, **kwargs):
+    async def manage_pages(*args, memory):
         # code to send a welcome email to the user
     ```
     **note**: the decorated function is perpetuated and autofilled which means
@@ -43,7 +43,7 @@ def on(variable_name: str, condition: Callable|None=None, singularize=False):
         return function
     return decorator
 
-async def perpetuate(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
+async def perpetuate(function: Callable, args: Any=[], memory: Any={}) -> Any:
     """
     Asynchronously executes a function and perpetuates its effects in memory.
 
@@ -51,7 +51,7 @@ async def perpetuate(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
     - function (Callable): The function to be executed.
     - args (Any, optional): Positional arguments to be passed to the function.
         Defaults to an empty list.
-    - kwargs: The memory 
+    - memory: The memory 
 
     **Returns**:
     - The mutated keyword arguments of the executed function.
@@ -63,25 +63,25 @@ async def perpetuate(function: Callable, args: Any=[], kwargs: Any={}) -> Any:
         return {'name': name, 'email': email}
 
     updated_values = await perpetuate(
-        update_user_info, args=[123], kwargs={'name': 'John'}
+        update_user_info, args=[123], memory={'name': 'John'}
     )
     # updated_values will be {'name': 'John', 'email': None}
     # (assuming the original value of email was None)
     ```
     """
-    update = await autofill(function, args=args, kwargs=kwargs)
+    update = await autofill(function, args=args, memory=memory)
     if isinstance(update, dict):
-        kwargs.update(update)
+        memory.update(update)
         logging.debug('Mutation = %s', json.dumps(update, indent=4, default=lambda a: str(a)))
-        # logging.debug('Memory = %s', json.dumps(kwargs, indent=4, default=lambda a: str(a)))
+        # logging.debug('Memory = %s', json.dumps(memory, indent=4, default=lambda a: str(a)))
         for key, value in update.items():
             if key in ONS:
                 for (condition, func, singularize) in ONS[key]:
                     if singularize:
                         if not isinstance(value, Iterable):
                             raise ValueError('Singularize received a non iterable value')
-                        await asyncio.gather(*[autofill(func, args=[iterated], kwargs=kwargs) for iterated in value])
+                        await asyncio.gather(*[autofill(func, args=[iterated], memory=memory) for iterated in value])
                     else:
-                        if (condition and await autofill(condition, args=[value], kwargs=kwargs)) or not condition:
-                            await autofill(func, args=[value], kwargs=kwargs)
+                        if (condition and await autofill(condition, args=[value], memory=memory)) or not condition:
+                            await autofill(func, args=[value], memory=memory)
     return update

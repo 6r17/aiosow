@@ -21,7 +21,7 @@ def setup(func: Callable) -> Callable:
     SETUP_FUNCTIONS.append(func)
     return func
 
-async def initialize(kwargs: Dict) -> List[asyncio.Task]:
+async def initialize(memory: Dict) -> List[asyncio.Task]:
     """
     Function that runs all initialization functions added to the list.
 
@@ -35,7 +35,7 @@ async def initialize(kwargs: Dict) -> List[asyncio.Task]:
     )
     tasks = []
     for setup_func in SETUP_FUNCTIONS:
-        result = await perpetuate(setup_func, kwargs=kwargs)
+        result = await perpetuate(setup_func, memory=memory)
         if asyncio.iscoroutine(result):
             tasks.append(result)
         logging.debug(f'{setup_func.__module__}.{setup_func.__name__} : ok')
