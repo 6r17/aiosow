@@ -6,3 +6,5 @@ build
 docs
 compositions
 aiosow.egg-info/
+http.py
+shell.py
