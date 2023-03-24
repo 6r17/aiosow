@@ -1,5 +1,7 @@
 '''
-await function(*args, **memory) -> this doesn't work if the function doesnt take **memory
+await function(*args, **memory) -> this doesn't work because :
+    - it is not generic and will break whenever a function doesn't take **kwargs
+    - kwargs itself is a copy and will break reference
 '''
 from typing import Any, Callable, List
 
