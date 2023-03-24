@@ -3,7 +3,7 @@ await function(*args, **memory) -> this doesn't work if the function doesnt take
 '''
 from typing import Any, Callable, List
 
-import inspect, logging, json
+import inspect, logging
 
 ALIASES = {}
 
@@ -96,7 +96,8 @@ async def autofill(function: Callable, args: Any=[], memory: Any={}) -> Any:
         result = function( *given_args, **kws )
         return await result if inspect.iscoroutine(result) else result
     except Exception as err: # pragma: no cover
-        logging.error(f'{name}({given_args}):\n\n\t->{err}\n (`memory`={json.dumps(memory, indent=4, default=lambda val: str(val))}')
-        raise(err)
+        if memory['debug']:
+            logging.debug(f'{name}({given_args})')
+        logging.error(err)
 
 __all__ = ['alias', 'autofill']

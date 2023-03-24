@@ -17,10 +17,21 @@ def run(composition=None):
     parser = argparse.ArgumentParser()
     if not composition:
         parser.add_argument('composition', help='composition to run')
-    parser.add_argument('-c', '--config', help='Path to configuration file', default='', type=str)
-    parser.add_argument('-d', '--debug', default=False, action='store_true', help='Debug mode')
-    parser.add_argument('-la', '--log_autofill', default=False, action='store_true', help='Log.debug every autofill arguments')
-    parser.add_argument('--no_run_forever', default=False, action='store_true', help='Whether it should run forever')
+    parser.add_argument(
+        '-c', '--config', help='Path to configuration file', default='',
+        type=str
+    )
+    parser.add_argument(
+        '-d', '--debug', default=False, action='store_true', help='Debug mode'
+    )
+    parser.add_argument(
+        '-la', '--log_autofill', default=False, action='store_true',
+        help='Log.debug every autofill arguments'
+    )
+    parser.add_argument(
+        '--no_run_forever', default=False, action='store_true',
+        help='Whether it should run forever'
+    )
     try:
         if not composition:
             composition = sys.argv[1]
