@@ -10,3 +10,4 @@ http.py
 shell.py
 utils.py
 tests/test_http.py
+tests/test_utils.py
