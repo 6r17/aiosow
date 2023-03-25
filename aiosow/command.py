@@ -5,7 +5,7 @@ from aiosow.setup import initialize
 from aiosow.options import options
 
 
-def run(composition=None):
+def load_composition(composition=None):
     debug = (
         "-d" in sys.argv
         or "--debug" in sys.argv
@@ -46,18 +46,23 @@ def run(composition=None):
         raise (e)
     for name, args in options().items():
         parser.add_argument(f"--{name}", **args)
-    kwargs = vars(parser.parse_args())
-    logging.debug(kwargs)
+    return vars(parser.parse_args())
+
+
+def run(composition=None):
+    memory = load_composition(composition=composition)
+    logging.debug(memory)
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    tasks = loop.run_until_complete(initialize(kwargs))
+    tasks = loop.run_until_complete(initialize(memory))
+    # setups can return a task which is ran here
+    # this allows setups to start tasks and still have them complete
     loop.run_until_complete(asyncio.gather(*tasks))
-
-    if not kwargs["no_run_forever"]:
-        loop.run_forever()  # pragma: no cover
+    if not memory["no_run_forever"]:
+        loop.run_forever()
 
 
 if __name__ == "__main__":
-    run()  # pragma: no cover
+    run()
 
 __all__ = []

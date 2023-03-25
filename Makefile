@@ -16,7 +16,7 @@ activate:
 	@echo '. env/bin/activate'
 
 test:
-	env/bin/pytest -s --cov=aiosow --cov-report=term-missing
+	env/bin/pytest -s --cov=aiosow --cov-report=term-missing --cov-fail-under=100
 
 report:
 	env/bin/coverage report

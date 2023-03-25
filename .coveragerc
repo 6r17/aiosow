@@ -1,0 +1,5 @@
+[run]
+omit = 
+    aiosow/command.py
+    aiosow/shell.py
+    aiosow/http.py
