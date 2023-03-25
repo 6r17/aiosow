@@ -12,8 +12,8 @@ async def test_perpetuate():
     def test_function2(a):
         return { 'result': a + 1 }
 
-    assert await perpetuate(test_function, kwargs=mem) == 2
-    assert await perpetuate(test_function2, kwargs=mem) == { 'result': 2 }
+    assert await perpetuate(test_function, memory=mem) == 2
+    assert await perpetuate(test_function2, memory=mem) == { 'result': 2 }
 
     assert mem['result'] == 2
 
@@ -24,9 +24,9 @@ async def test_on(mocker):
     mockb = mocker.Mock()
     on('a')(mock)
     on('b', singularize=True)(mockb)
-    assert await perpetuate(lambda: { 'a': 2 }, kwargs=mem)
+    assert await perpetuate(lambda: { 'a': 2 }, memory=mem)
     mock.assert_called_once()
-    assert await perpetuate(lambda: { 'b': [1, 2] }, kwargs=mem)
+    assert await perpetuate(lambda: { 'b': [1, 2] }, memory=mem)
     assert mockb.call_count == 2
     with pytest.raises(ValueError):
-        await perpetuate(lambda: { 'b': 1 }, kwargs=mem)
+        await perpetuate(lambda: { 'b': 1 }, memory=mem)
