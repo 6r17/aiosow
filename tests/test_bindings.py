@@ -59,7 +59,7 @@ async def test_wire_chain():
 
     await value_trigger(2)
     assert mock_end.call_count == 2
-    mock_end.assert_called_with(2)
+    mock_end.assert_called_with(2, memory={})
 
 @pytest.mark.asyncio
 async def test_accumulator():
