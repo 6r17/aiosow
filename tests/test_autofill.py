@@ -22,9 +22,9 @@ async def test_autofill_positional():
         return a + b + c
 
     args = (1, 2)
-    kwargs = {'c': 3}
+    memory = {'c': 3}
 
-    assert await autofill(my_function, args=args, kwargs=kwargs) == 6
+    assert await autofill(my_function, args=args, memory=memory) == 6
 
 @pytest.mark.asyncio
 async def test_autofill_positional_and_keywords():
@@ -33,14 +33,14 @@ async def test_autofill_positional_and_keywords():
         return a + b + c + d
 
     args = (1, 2)
-    kwargs = {'c': 3}
+    memory = {'c': 3}
 
-    assert await autofill(my_function2, args=args, kwargs=kwargs) == 6
+    assert await autofill(my_function2, args=args, memory=memory) == 6
 
     args = (1, 2)
-    kwargs = {'c': 3, 'd': 4}
+    memory = {'c': 3, 'd': 4}
 
-    assert await autofill(my_function2, args=args, kwargs=kwargs) == 10
+    assert await autofill(my_function2, args=args, memory=memory) == 10
 
 @pytest.mark.asyncio
 async def test_autofill_keywords():
@@ -48,17 +48,17 @@ async def test_autofill_keywords():
     def my_function3(a, b=0, c=0):
         return a + b + c
 
-    kwargs = {'a': 1, 'b': 2, 'c': 3}
+    memory = {'a': 1, 'b': 2, 'c': 3}
 
-    assert await autofill(my_function3, kwargs=kwargs) == 6
+    assert await autofill(my_function3, memory=memory) == 6
 
-    kwargs = {'a': 1}
+    memory = {'a': 1}
 
-    assert await autofill(my_function3, kwargs=kwargs) == 1
+    assert await autofill(my_function3, memory=memory) == 1
 
-    kwargs = {'a': 1, 'c': 3}
+    memory = {'a': 1, 'c': 3}
 
-    assert await autofill(my_function3, kwargs=kwargs) == 4
+    assert await autofill(my_function3, memory=memory) == 4
 
 @pytest.mark.asyncio
 async def test_autofill_mixxed():
@@ -68,14 +68,14 @@ async def test_autofill_mixxed():
         return a + b + c + d
 
     args = (1,)
-    kwargs = {'b': 2, 'c': 3}
+    memory = {'b': 2, 'c': 3}
 
-    assert await autofill(my_function4, args=args, kwargs=kwargs) == 6
+    assert await autofill(my_function4, args=args, memory=memory) == 6
 
     args = (1, 2, 3)
-    kwargs = {'d': 4}
+    memory = {'d': 4}
 
-    assert await autofill(my_function4, args=args, kwargs=kwargs) == 10
+    assert await autofill(my_function4, args=args, memory=memory) == 10
 
 @pytest.mark.asyncio
 async def test_autofill_no_arg():
@@ -87,20 +87,20 @@ async def test_autofill_no_arg():
 @pytest.mark.asyncio
 async def test_autofill_arbitrary():
     # Test 6: Call a function with arbitrary arguments
-    def my_function6(*args, **kwargs):
-        return args, kwargs
+    def my_function6(memory, *args):
+        return args, memory
     args = (1, 2)
-    kwargs = {'a': 3, 'b': 4}
-    assert await autofill(my_function6, args=args, kwargs=kwargs) == ((1, 2), {'a': 3, 'b': 4})
+    memory = {'a': 3, 'b': 4}
+    assert await autofill(my_function6, args=args, memory=memory) == ((1, 2), {'a': 3, 'b': 4})
 
 @pytest.mark.asyncio
 async def test_autofill_decorated():
-    def my_function6(**kwargs):
-        return kwargs
-    kwargs = {'a': 3, 'b': 4}
+    def my_function6(memory):
+        return memory
+    memory = {'a': 3, 'b': 4}
     # Test 7: On a decorated function
     decorated_function = delay(0.05)(my_function6)
-    assert await autofill(decorated_function, kwargs=kwargs) == ({'a': 3, 'b': 4})
+    assert await autofill(decorated_function, memory=memory) == ({'a': 3, 'b': 4})
 
 @pytest.mark.asyncio
 async def test_autofill_aliased():
@@ -109,8 +109,8 @@ async def test_autofill_aliased():
     def my_function7(test):
         return test
     args = (1, 2)
-    kwargs = { 'test': 'error' }
+    memory = { 'test': 'error' }
     def test():
         return 'correct'
     alias('test')(test)
-    assert await autofill(my_function7, args=args, kwargs=kwargs) == 'correct'
+    assert await autofill(my_function7, args=args, memory=memory) == 'correct'

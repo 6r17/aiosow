@@ -42,7 +42,7 @@ def alias(name: str):
         return function
     return decorator
 
-async def autofill(function: Callable, args: Any=[], memory: Any={}) -> Any:
+async def autofill(function: Callable, args: Any=[], memory: Any={}, **kwargs) -> Any:
     """
     The autofill function takes a callable function, args, and memory as input
     arguments, and returns the result of calling the function with autofilled
@@ -98,8 +98,9 @@ async def autofill(function: Callable, args: Any=[], memory: Any={}) -> Any:
         result = function( *given_args, **kws )
         return await result if inspect.iscoroutine(result) else result
     except Exception as err: # pragma: no cover
-        if memory['debug']:
-            logging.debug(f'{name}({given_args})')
         logging.error(err)
+        if memory.get('debug', False):
+            logging.debug(f'{name}({given_args})')
+            raise(err)
 
 __all__ = ['alias', 'autofill']
