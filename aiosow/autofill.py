@@ -42,7 +42,7 @@ def alias(name: str):
         return function
     return decorator
 
-async def autofill(function: Callable, args: Any=[], memory: Any={}, **kwargs) -> Any:
+async def autofill(function: Callable, args: Any=[], **kwargs) -> Any:
     """
     The autofill function takes a callable function, args, and memory as input
     arguments, and returns the result of calling the function with autofilled
@@ -63,7 +63,7 @@ async def autofill(function: Callable, args: Any=[], memory: Any={}, **kwargs) -
     - If the input function has been decorated, this function will unwrap the 
         original function and use its signature to determine the arguments.
     """
-
+    memory = kwargs.get('memory', {})
     def prototype(function:Callable) -> List:
         return [
             (param_name, None if param.default is inspect.Parameter.empty else param.default)
@@ -78,11 +78,11 @@ async def autofill(function: Callable, args: Any=[], memory: Any={}, **kwargs) -
     argscopy = list(args)
     if hasattr(function, '__wrapped__'):
         given_args = args
-        kws = { 'memory': memory }
+        kws = kwargs
         name = function.__wrapped__.__name__
     else:
         name = getattr(function, '__name__', None) or str(function)
-        kws = { 'memory': memory } if inspect.getfullargspec(function).varkw else {}
+        kws = kwargs if inspect.getfullargspec(function).varkw else {}
         prot = prototype(function)
         given_args = [
             memory if name == 'memory' else
@@ -101,6 +101,6 @@ async def autofill(function: Callable, args: Any=[], memory: Any={}, **kwargs) -
         logging.error(err)
         if memory.get('debug', False):
             logging.debug(f'{name}({given_args})')
-            raise(err)
+        raise(err) # `debug` needs `autofill` to raise
 
 __all__ = ['alias', 'autofill']

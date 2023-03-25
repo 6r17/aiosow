@@ -1,7 +1,7 @@
 
 import time
 import pytest
-from aiosow.bindings import delay, wrap, each, wire, accumulator
+from aiosow.bindings import delay, wrap, each, wire, accumulator, read_only, debug
 
 from unittest.mock import Mock
 
@@ -119,3 +119,18 @@ async def test_each_without_argument():
         return n * n
 
     assert await each()(square)([0, 1, 2]) == [0, 1, 4]
+
+@pytest.mark.asyncio
+async def test_read_only():
+    getter = read_only(42)
+    assert getter() == 42
+
+@pytest.mark.asyncio
+async def test_debug():
+    mock_listener = Mock()
+    mock_listener.__name__ = 'trigger'
+    @debug(mock_listener)
+    async def raises():
+        raise Exception('error')
+    await raises()
+    assert mock_listener.call_count == 1

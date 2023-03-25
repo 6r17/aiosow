@@ -269,7 +269,7 @@ def debug(trigger: Callable[[Exception, Callable, Tuple], Any]) -> Callable:
         return execute
     return decorator
 
-def pdb(*__args__, **__kwargs__):
+def pdb(*__args__, **__kwargs__): # pragma: no cover
     """
     Launches pdb.set_trace(), utility function for `aiosow.bindings.debug`
 
