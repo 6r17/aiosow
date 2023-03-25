@@ -1,48 +1,54 @@
-'''
+"""
 await function(*args, **memory) -> this doesn't work because :
     - it is not generic and will break whenever a function doesn't take **kwargs
     - kwargs itself is a copy and will break reference
-'''
+"""
 from typing import Any, Callable, List
 
 import inspect, logging
 
 ALIASES = {}
 
-def get_aliases(): # pragma: no cover
+
+def get_aliases():  # pragma: no cover
     global ALIASES
     return ALIASES
 
-def reset_aliases(): # pragma: no cover
+
+def reset_aliases():  # pragma: no cover
     global ALIASES
-    ALIASES = {} 
+    ALIASES = {}
+
 
 def alias(name: str):
     """
     The alias function is a decorator that can be used to inject a value for a
     function argument that will be passed to the autofill function.
 
-    When a function is decorated with alias, the arguments with the given name 
-    is aliased and its value will be replaced with the value returned by the 
+    When a function is decorated with alias, the arguments with the given name
+    is aliased and its value will be replaced with the value returned by the
     aliased function when calling the autofill function. The original function
     can still be called normally, but when calling the autofill function,
-    the arguments value will be determined by the registered alias. 
+    the arguments value will be determined by the registered alias.
     The registered alias function will be called and its result will be used as
     the argument value.
-    
+
     **Args**:
     - name (str): The name of the argument to inject a value for.
 
     **Returns**:
-    - Callable: A decorator that takes a function as input, registers it to have 
+    - Callable: A decorator that takes a function as input, registers it to have
       an injected argument with the given name, and returns the function unchanged.
     """
+
     def decorator(function: Callable):
-        ALIASES[name] = function 
+        ALIASES[name] = function
         return function
+
     return decorator
 
-async def autofill(function: Callable, args: Any=[], **kwargs) -> Any:
+
+async def autofill(function: Callable, args: Any = [], **kwargs) -> Any:
     """
     The autofill function takes a callable function, args, and memory as input
     arguments, and returns the result of calling the function with autofilled
@@ -59,48 +65,63 @@ async def autofill(function: Callable, args: Any=[], **kwargs) -> Any:
     **Notes**:
     - If the input function has default arguments, the corresponding values will
         be used if the input args and memory do not provide values for them.
-   
-    - If the input function has been decorated, this function will unwrap the 
+
+    - If the input function has been decorated, this function will unwrap the
         original function and use its signature to determine the arguments.
     """
-    memory = kwargs.get('memory', {})
-    def prototype(function:Callable) -> List:
+    memory = kwargs.get("memory", {})
+
+    def prototype(function: Callable) -> List:
         return [
-            (param_name, None if param.default is inspect.Parameter.empty else param.default)
+            (
+                param_name,
+                None if param.default is inspect.Parameter.empty else param.default,
+            )
             for param_name, param in inspect.signature(function).parameters.items()
             if param.kind != inspect.Parameter.VAR_KEYWORD
             and param.kind != inspect.Parameter.VAR_POSITIONAL
         ]
-    
+
     class Sentinel:
-        '''Used to represent element to be deleted'''
-    
+        """Used to represent element to be deleted"""
+
     argscopy = list(args)
-    if hasattr(function, '__wrapped__'):
+    if hasattr(function, "__wrapped__"):
         given_args = args
         kws = kwargs
         name = function.__wrapped__.__name__
     else:
-        name = getattr(function, '__name__', None) or str(function)
+        name = getattr(function, "__name__", None) or str(function)
         kws = kwargs if inspect.getfullargspec(function).varkw else {}
         prot = prototype(function)
         given_args = [
-            memory if name == 'memory' else
-            await autofill(ALIASES[name], args=args, memory=memory) if name in ALIASES else
-            argscopy.pop(0) if len(argscopy) > 0 else
-            (memory.get(name, value) if not inspect.getfullargspec(function).varkw else Sentinel)
-            for (name, value) in prot 
+            memory
+            if name == "memory"
+            else await autofill(ALIASES[name], args=args, memory=memory)
+            if name in ALIASES
+            else argscopy.pop(0)
+            if len(argscopy) > 0
+            else (
+                memory.get(name, value)
+                if not inspect.getfullargspec(function).varkw
+                else Sentinel
+            )
+            for (name, value) in prot
         ]
         given_args = [arg for arg in given_args if arg != Sentinel]
-        has_varargs = any(param.kind == inspect.Parameter.VAR_POSITIONAL for param in inspect.signature(function).parameters.values())
+        has_varargs = any(
+            param.kind == inspect.Parameter.VAR_POSITIONAL
+            for param in inspect.signature(function).parameters.values()
+        )
         given_args = given_args if not has_varargs else given_args + list(argscopy)
     try:
-        result = function( *given_args, **kws )
+        result = function(*given_args, **kws)
         return await result if inspect.iscoroutine(result) else result
-    except Exception as err: # pragma: no cover
+    except Exception as err:  # pragma: no cover
         logging.error(err)
-        if memory.get('debug', False):
-            logging.debug(f'{name}({given_args})')
-        raise(err) # `debug` needs `autofill` to raise
+        if memory.get("debug", False):
+            logging.debug(f"{name}({given_args})")
+        raise (err)  # `debug` needs `autofill` to raise
 
-__all__ = ['alias', 'autofill']
+
+__all__ = ["alias", "autofill"]

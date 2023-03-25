@@ -8,3 +8,5 @@ compositions
 aiosow.egg-info/
 http.py
 shell.py
+utils.py
+tests/test_http.py

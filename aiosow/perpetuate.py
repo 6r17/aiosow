@@ -1,4 +1,3 @@
-
 import logging, json
 import asyncio
 from typing import Callable, Any
@@ -8,9 +7,10 @@ from aiosow.autofill import autofill
 
 ONS = {}
 
-def on(variable_name: str, condition: Callable|None=None, singularize=False):
+
+def on(variable_name: str, condition: Callable | None = None, singularize=False):
     """
-    Decorator function that registers a function to be executed when a variable 
+    Decorator function that registers a function to be executed when a variable
     of specified name is perpetuated in memory.
 
     **Args**:
@@ -36,14 +36,17 @@ def on(variable_name: str, condition: Callable|None=None, singularize=False):
     that it's result will be propegated to the memory and that it's arguments
     are autofilled based on it.
     """
+
     def decorator(function: Callable):
         if variable_name not in ONS:
             ONS[variable_name] = []
         ONS[variable_name].append((condition, function, singularize))
         return function
+
     return decorator
 
-async def perpetuate(function: Callable, args: Any=[], memory: Any={}) -> Any:
+
+async def perpetuate(function: Callable, args: Any = [], memory: Any = {}) -> Any:
     """
     Asynchronously executes a function and perpetuates its effects in memory.
 
@@ -51,7 +54,7 @@ async def perpetuate(function: Callable, args: Any=[], memory: Any={}) -> Any:
     - function (Callable): The function to be executed.
     - args (Any, optional): Positional arguments to be passed to the function.
         Defaults to an empty list.
-    - memory: The memory 
+    - memory: The memory
 
     **Returns**:
     - The mutated keyword arguments of the executed function.
@@ -72,16 +75,28 @@ async def perpetuate(function: Callable, args: Any=[], memory: Any={}) -> Any:
     update = await autofill(function, args=args, memory=memory)
     if isinstance(update, dict):
         memory.update(update)
-        logging.debug('Mutation = %s', json.dumps(update, indent=4, default=lambda a: str(a)))
+        logging.debug(
+            "Mutation = %s", json.dumps(update, indent=4, default=lambda a: str(a))
+        )
         # logging.debug('Memory = %s', json.dumps(memory, indent=4, default=lambda a: str(a)))
         for key, value in update.items():
             if key in ONS:
-                for (condition, func, singularize) in ONS[key]:
+                for condition, func, singularize in ONS[key]:
                     if singularize:
                         if not isinstance(value, Iterable):
-                            raise ValueError('Singularize received a non iterable value')
-                        await asyncio.gather(*[autofill(func, args=[iterated], memory=memory) for iterated in value])
+                            raise ValueError(
+                                "Singularize received a non iterable value"
+                            )
+                        await asyncio.gather(
+                            *[
+                                autofill(func, args=[iterated], memory=memory)
+                                for iterated in value
+                            ]
+                        )
                     else:
-                        if (condition and await autofill(condition, args=[value], memory=memory)) or not condition:
+                        if (
+                            condition
+                            and await autofill(condition, args=[value], memory=memory)
+                        ) or not condition:
                             await autofill(func, args=[value], memory=memory)
     return update
