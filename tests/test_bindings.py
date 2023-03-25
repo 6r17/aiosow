@@ -1,6 +1,15 @@
 import time
 import pytest
-from aiosow.bindings import delay, wrap, each, wire, accumulator, read_only, debug
+from aiosow.bindings import (
+    delay,
+    wrap,
+    each,
+    wire,
+    accumulator,
+    read_only,
+    debug,
+    make_async,
+)
 
 from unittest.mock import Mock
 
@@ -155,3 +164,20 @@ async def test_debug():
 
     await raises()
     assert mock_listener.call_count == 1
+
+
+import time, asyncio
+
+
+@pytest.mark.asyncio
+async def test_make_async():
+    @make_async
+    def wait(*__args__):
+        time.sleep(0.2)
+        return "foo"
+
+    start_time = time.monotonic()
+    results = await asyncio.gather(wait(), wait(), wait())
+    end_time = time.monotonic()
+    assert results == ["foo", "foo", "foo"]
+    assert end_time - start_time < (0.3)
