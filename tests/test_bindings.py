@@ -72,6 +72,16 @@ async def test_accumulator():
     assert mock_listener.call_count == 1
 
 @pytest.mark.asyncio
+async def test_accumulator_from_mem():
+    mock_listener = Mock()
+    mock_listener.__name__ = 'mock'
+    batched = accumulator(lambda memory: memory['size'])(mock_listener)
+    await batched(1, memory={'size': 2})
+    assert mock_listener.call_count == 0
+    await batched(2, memory={'size': 2})
+    assert mock_listener.call_count == 1
+
+@pytest.mark.asyncio
 async def test_delay_decorator(synchronous_function, asynchronous_function):
     delayed_synchronous = delay(seconds=0.005)(synchronous_function)
     start_time = time.monotonic()

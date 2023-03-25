@@ -114,7 +114,7 @@ def accumulator(size: int|Callable) -> Callable:
         async def execute(*args, **kwargs) -> Any:
             nonlocal bucket
             if isinstance(size, Callable):
-                _size = size(kwargs)
+                _size = size(kwargs.get('memory', {}))
             else:
                 _size = size
             bucket += args
