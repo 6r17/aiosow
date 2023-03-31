@@ -98,5 +98,5 @@ async def perpetuate(function: Callable, args: Any = [], memory: Any = {}) -> An
                             condition
                             and await autofill(condition, args=[value], memory=memory)
                         ) or not condition:
-                            await autofill(func, args=[value], memory=memory)
+                            await perpetuate(func, args=[value], memory=memory)
     return update
