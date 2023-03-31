@@ -11,7 +11,10 @@ def load_composition(composition=None):
         or "--debug" in sys.argv
         or any(arg.find("-d") != -1 or arg.find("--debug") != -1 for arg in sys.argv)
     )
-    logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
+    logging.basicConfig(
+        level=logging.DEBUG if debug else logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s",
+    )
     parser = argparse.ArgumentParser()
     if not composition:
         parser.add_argument("composition", help="composition to run")
