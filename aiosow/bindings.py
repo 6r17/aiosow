@@ -288,6 +288,70 @@ def debug(trigger: Callable[[Exception, Callable, Tuple], Any]) -> Callable:
     return decorator
 
 
+def return_true(*__args__):
+    """
+    Python doesn't allow lambda definition inside prototype
+    This function is used as a default value for conditional parameters that
+    take a function to filter behavior.
+    """
+    return True
+
+
+def return_false(*__args__):
+    """
+    Python doesn't allow lambda definition inside prototype
+    This function is used as a default value for conditional parameters that
+    take a function to filter behavior.
+    """
+    return False
+
+
+def do_raise(exception):
+    """
+    Python doesn't allow lambda definition inside prototype
+    This function is used as a default value for conditional parameters that
+    allow custom definition of behavior on exception.
+    """
+
+    raise exception
+
+
+def expect(
+    trigger: Callable,
+    condition: Callable = return_true,
+    retries: int = 1,
+    on_raise=do_raise,
+) -> Callable:
+    """
+    Decorated function is retried after perpetuation of trigger function on
+    Exception.
+    """
+
+    def decorator(function: Callable) -> Callable:
+        counter = 0
+
+        @wraps(function)
+        async def _expect(*args, **kwargs):
+            nonlocal counter
+            try:
+                result = await autofill(function, args=args, **kwargs)
+                counter = 0
+                return result
+            except Exception as raised_error:
+                if counter >= retries:
+                    raise (raised_error)
+                elif condition(args, raised_error):
+                    counter += 1
+                    await perpetuate(trigger, args=[], **kwargs)
+                    return await _expect(*args, **kwargs)
+                else:
+                    on_raise(raised_error)
+
+        return _expect
+
+    return decorator
+
+
 def pdb(*__args__, **__kwargs__):  # pragma: no cover
     """
     Launches pdb.set_trace(), utility function for `aiosow.bindings.debug`
