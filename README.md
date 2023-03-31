@@ -5,17 +5,25 @@
 [![Documentation](https://img.shields.io/badge/-documentation-white?style=for-the-badge)](https://exorde-labs.github.io/aiosow)
 
 ## Streamline your Python Data Pipeline in one package
-Building a customizable all-in-one package that does api, scraping and integrates ai toolkits is hard.
+Building an all-in-one package that does api, scraping and integrates slow processing is hard.
 
-`aiosow` simplifies the development of complex data pipelines for your team. 
-With procedural programming, large codebases can quickly become unmanageable, 
-leading to bugs and errors. Event-based programming helps you focus on the desired outcome 
-rather than every single step.
+`aiosow` glues this all together.
 
-## Efficient, Event-Driven, Modular
-`aiosow` is designed with high modularity and customizability in mind.
-Our asynchronous base provides unparalleled performance for Python, and the separation of concerns approach 
-allows each part of the codebase to be developed independently.
+
+## Efficient, Event-Based, Modular
+
+- Asynchronous
+
+For efficient performance in I/O operations.
+
+- Event-based
+
+Helps you focus on the desired outcome rather than every single step.
+
+- Modular 
+
+Allow each part of the codebase to be developed independently.
+
 
 ## Enforced Separation of Concerns 
 
