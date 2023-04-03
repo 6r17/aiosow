@@ -90,6 +90,11 @@ async def perpetuate(function: Callable, args: Any = [], memory: Any = {}) -> An
                         await asyncio.gather(
                             *[
                                 autofill(func, args=[iterated], memory=memory)
+                                for iterated in value.items()
+                            ]
+                            if isinstance(value, dict)
+                            else [
+                                autofill(func, args=[iterated], memory=memory)
                                 for iterated in value
                             ]
                         )

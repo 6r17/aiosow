@@ -13,7 +13,7 @@ from aiosow.perpetuate import on, perpetuate
 from aiosow.setup import setup
 
 
-def wire() -> Tuple[Callable, Callable]:
+def wire(perpetual=False) -> Tuple[Callable, Callable]:
     """
     Returns a tuple of two decorators: `trigger_decorator` and `listen_decorator`.
 
@@ -73,6 +73,7 @@ def wire() -> Tuple[Callable, Callable]:
     - A tuple of two decorators: `trigger_decorator` and `listen_decorator`.
     """
     listeners = []
+    caster = autofill if not perpetual else perpetuate
 
     def trigger_decorator(triggerer):
         @wraps(triggerer)
@@ -84,13 +85,13 @@ def wire() -> Tuple[Callable, Callable]:
                     tasks = []
                     for val in result:
                         tasks += [
-                            asyncio.create_task(autofill(func, args=[val], **kwargs))
+                            asyncio.create_task(caster(func, args=[val], **kwargs))
                             for func in listeners
                             if func
                         ]
                 else:
                     tasks = [
-                        asyncio.create_task(autofill(func, args=[result], **kwargs))
+                        asyncio.create_task(caster(func, args=[result], **kwargs))
                         for func in listeners
                         if func
                     ]
@@ -129,6 +130,42 @@ def accumulator(size: int | Callable) -> Callable:
                 return await autofill(function, args=[argument], **kwargs)
 
         return execute
+
+    return decorator
+
+
+def call_limit(seconds):
+    """
+    A decorator that limits the frequency of function calls based on the number
+    of seconds specified in the decorator parameter.
+
+    **Args**:
+        - seconds (int): The minimum number of seconds that must elapse between
+            function calls.
+
+    **Returns**:
+        - function: A decorated function that can only be called once every
+            `seconds` seconds.
+    """
+
+    def decorator(func):
+        last_called = 0
+
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            nonlocal last_called
+            current_time = time.monotonic()
+            if current_time - last_called >= seconds:
+                try:
+                    result = autofill(func, args=args, **kwargs)
+                except Exception as e:
+                    last_called = current_time
+                    raise e
+                else:
+                    last_called = current_time
+                    return result
+
+        return wrapper
 
     return decorator
 
