@@ -46,16 +46,21 @@ def routine(
 
 
 async def consume_routines(memory):
-    ROUTINES = get_routines()
-    while ROUTINES:
-        # Calculate the smallest timeout value among all routines
-        smallest_timeout = min([routine["timeout"] for routine in ROUTINES])
-        # Update the timeout value for each routine
-        for routine in ROUTINES:
+    routines = get_routines()
+    while routines:
+        # Find the routine with the smallest remaining timeout or a timeout <= 0
+        smallest_timeout_routine = min(routines, key=lambda x: x["timeout"])
+        smallest_timeout = smallest_timeout_routine["timeout"]
+        if smallest_timeout <= 0:
+            smallest_timeout = 0
+
+        # Wait until the smallest timeout has elapsed
+        await asyncio.sleep(smallest_timeout)
+
+        # Execute any routines that have timed out
+        for routine in routines:
             routine["timeout"] -= smallest_timeout
-        # Check if any routines have timed out
-        for routine in ROUTINES:
-            if routine["timeout"] == 0:
+            if routine["timeout"] <= 0:
                 condition = routine["condition"]
                 function = routine["function"]
                 # Check the condition before running the routine
@@ -68,9 +73,7 @@ async def consume_routines(memory):
                 if routine["frequency"] > 0:
                     routine["timeout"] = routine["frequency"]
                 else:
-                    ROUTINES.remove(routine)
-        # Wait until the next routine is scheduled to run
-        await asyncio.sleep(smallest_timeout)
+                    routines.remove(routine)
 
 
 async def consumer(memory):  # pragma: no cover
