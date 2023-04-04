@@ -13,7 +13,8 @@ def load_composition(composition=None):
     )
     logging.basicConfig(
         level=logging.DEBUG if debug else logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s",
+        format="[%(asctime)s][%(levelname)s] \t%(message)s",
+        datefmt="%H:%M:%S",
     )
     parser = argparse.ArgumentParser()
     if not composition:
