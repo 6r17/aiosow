@@ -13,6 +13,26 @@ from aiosow.perpetuate import on, perpetuate
 from aiosow.setup import setup
 
 
+def chain(*functions):
+    """Applies functions iteratively and pass each result to next function"""
+
+    async def _chain(*args, **kwargs):
+        result = None
+        has_result = False
+        for function in functions:
+            sig = inspect.getfullargspec(function)
+            result = await perpetuate(
+                function, args=[result] if has_result else list(args), **kwargs
+            )
+            if sig.annotations.get("return") is not inspect._empty:
+                has_result = True
+            else:
+                has_result = False
+        return result
+
+    return _chain
+
+
 def wire(perpetual=False) -> Tuple[Callable, Callable]:
     """
     Returns a tuple of two decorators: `trigger_decorator` and `listen_decorator`.
