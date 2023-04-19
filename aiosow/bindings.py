@@ -111,7 +111,6 @@ def wire(perpetual=False) -> Tuple[Callable, Callable]:
     def trigger_decorator(triggerer):
         @wraps(triggerer)
         async def call(*args, **kwargs):
-            logging.debug("routine.call")
             result = await autofill(triggerer, args=args, **kwargs)
             # if triggerer is a generator we need to iterate over it
             if result:
@@ -234,6 +233,7 @@ def delay(seconds: float) -> Callable:
             end_time = time.monotonic()
             exec_time = end_time - start_time
             delay = max(seconds - exec_time, 0)
+            logging.debug("asyncio.sleep of %s", delay)
             await asyncio.sleep(delay)
             return result
 
@@ -482,10 +482,22 @@ def loop(condition: Callable) -> Callable:
         async def exc(*args, **kwargs):
             while await autofill(condition, args=[*args], **kwargs):
                 await autofill(function, args=[*args], **kwargs)
+                await asyncio.sleep(0)
 
         return exc
 
     return _loop
+
+
+def routine(frequency, condition=return_true) -> Callable:
+    def decorator(function: Callable) -> Callable:
+        task(loop(condition)(delay(frequency)(function)))
+        return function
+
+    return decorator
+
+
+setup = task
 
 
 def make_async(function: Callable) -> Callable:
@@ -521,6 +533,7 @@ __all__ = [
     "perpetuate",
     "read_only",
     "task",
+    "setup",
     "wrap",
     "wire",
 ]
