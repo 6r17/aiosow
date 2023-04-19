@@ -1,16 +1,30 @@
 from typing import Tuple, Callable, Any
 
+import asyncio, logging
 import pdb as _pdb
-import asyncio
+import asyncio, logging
 import time
 import inspect
 
 from functools import wraps
+from typing import Dict, List, Callable
 
 from aiosow.autofill import autofill, alias
 from aiosow.options import option
 from aiosow.perpetuate import on, perpetuate
-from aiosow.setup import setup
+
+
+def until_success(function):
+    """Tries function until success"""
+
+    async def call(*args, **kwargs):
+        while True:
+            try:
+                return await autofill(function, args=args, **kwargs)
+            except:
+                pass
+
+    return call
 
 
 def chain(*functions):
@@ -88,7 +102,6 @@ def wire(perpetual=False) -> Tuple[Callable, Callable]:
     > my_function_called with 1
     ```
 
-
     **Returns**:
     - A tuple of two decorators: `trigger_decorator` and `listen_decorator`.
     """
@@ -98,6 +111,7 @@ def wire(perpetual=False) -> Tuple[Callable, Callable]:
     def trigger_decorator(triggerer):
         @wraps(triggerer)
         async def call(*args, **kwargs):
+            logging.debug("routine.call")
             result = await autofill(triggerer, args=args, **kwargs)
             # if triggerer is a generator we need to iterate over it
             if result:
@@ -421,6 +435,59 @@ def pdb(*__args__, **__kwargs__):  # pragma: no cover
     _pdb.set_trace()
 
 
+TASK_FUNCTIONS: List = []
+
+
+def clear_tasks():  # pragma: no cover
+    global TASK_FUNCTIONS
+    TASK_FUNCTIONS = []
+
+
+def task(func: Callable) -> Callable:
+    """
+    Decorator to add a function to the list of initialization functions.
+
+    **Args**:
+    - func (Callable): Function to add to the list of initialization functions.
+
+    **Returns**:
+    - func (Callable): The same function, unchanged.
+    """
+    logging.debug(" + task(%s)", func.__name__)
+    TASK_FUNCTIONS.append(func)
+    return func
+
+
+async def initialize(memory: Dict) -> List[asyncio.Task]:
+    """
+    Function that runs all initialization functions added to the list.
+
+    Args:
+        - app (web.Application): The aiohttp application.
+        - mem (Dict): The mem dictionary.
+    """
+    logging.debug("initialize with %s", [f"{fn.__name__}" for fn in TASK_FUNCTIONS])
+    tasks = []
+    for task_func in TASK_FUNCTIONS:
+        result = await perpetuate(task_func, memory=memory)
+        if asyncio.iscoroutine(result):
+            tasks.append(result)
+        logging.debug(f"{task_func.__module__}.{task_func.__name__} : ok")
+    return tasks
+
+
+def loop(condition: Callable) -> Callable:
+    def _loop(function: Callable):
+        @wraps(function)
+        async def exc(*args, **kwargs):
+            while await autofill(condition, args=[*args], **kwargs):
+                await autofill(function, args=[*args], **kwargs)
+
+        return exc
+
+    return _loop
+
+
 def make_async(function: Callable) -> Callable:
     """
     Make a synchronous function run in it's own thread
@@ -453,7 +520,7 @@ __all__ = [
     "pdb",
     "perpetuate",
     "read_only",
-    "setup",
+    "task",
     "wrap",
     "wire",
 ]

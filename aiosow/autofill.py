@@ -69,6 +69,7 @@ async def autofill(function: Callable, args: Any = [], **kwargs) -> Any:
     - If the input function has been decorated, this function will unwrap the
         original function and use its signature to determine the arguments.
     """
+    logging.debug("autofill with %s", function.__name__)
     memory = kwargs.get("memory", {})
 
     def prototype(function: Callable) -> List:
@@ -97,7 +98,7 @@ async def autofill(function: Callable, args: Any = [], **kwargs) -> Any:
         given_args = [
             memory
             if name == "memory"
-            else await autofill(ALIASES[name], args=args, memory=memory)
+            else await autofill(ALIASES[name], args=[], memory=memory)
             if name in ALIASES
             else argscopy.pop(0)
             if len(argscopy) > 0

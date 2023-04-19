@@ -75,9 +75,6 @@ async def perpetuate(function: Callable, args: Any = [], memory: Any = {}) -> An
     update = await autofill(function, args=args, memory=memory)
     if isinstance(update, dict):
         memory.update(update)
-        logging.debug(
-            "Mutation = %s", json.dumps(update, indent=4, default=lambda a: str(a))
-        )
         # logging.debug('Memory = %s', json.dumps(memory, indent=4, default=lambda a: str(a)))
         for key, value in update.items():
             if key in ONS:

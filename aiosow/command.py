@@ -1,7 +1,6 @@
 #! env python3.11
 
 import logging, asyncio, importlib, argparse, sys
-from aiosow.setup import initialize
 from aiosow.options import options
 
 
@@ -24,13 +23,6 @@ def load_composition(composition=None):
     )
     parser.add_argument(
         "-d", "--debug", default=False, action="store_true", help="Debug mode"
-    )
-    parser.add_argument(
-        "-la",
-        "--log_autofill",
-        default=False,
-        action="store_true",
-        help="Log.debug every autofill arguments",
     )
     parser.add_argument(
         "--no_run_forever",
@@ -58,7 +50,8 @@ def run(composition=None):
     logging.debug(memory)
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
-    tasks = loop.run_until_complete(initialize(memory))
+    bindings = importlib.import_module("aiosow.bindings")
+    tasks = loop.run_until_complete(bindings.initialize(memory))
     # setups can return a task which is ran here
     # this allows setups to start tasks and still have them complete
     loop.run_until_complete(asyncio.gather(*tasks))
