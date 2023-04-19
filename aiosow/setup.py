@@ -20,6 +20,7 @@ def setup(func: Callable) -> Callable:
     **Returns**:
     - func (Callable): The same function, unchanged.
     """
+    logging.debug("+ setup %s", func.__name__)
     SETUP_FUNCTIONS.append(func)
     return func
 
@@ -35,10 +36,12 @@ async def initialize(memory: Dict) -> List[asyncio.Task]:
     logging.debug("initialize with %s", [f"{fn.__name__}" for fn in SETUP_FUNCTIONS])
     tasks = []
     for setup_func in SETUP_FUNCTIONS:
+        logging.debug(" - runs setup (%s)", setup_func.__name__)
         result = await perpetuate(setup_func, memory=memory)
         if asyncio.iscoroutine(result):
             tasks.append(result)
         logging.debug(f"{setup_func.__module__}.{setup_func.__name__} : ok")
+    logging.debug("initialize is done")
     return tasks
 
 

@@ -33,6 +33,19 @@ def chain(*functions):
     return _chain
 
 
+def until_success(function):
+    """Tries function until success"""
+
+    async def call(*args, **kwargs):
+        while True:
+            try:
+                return await autofill(function, args=args, **kwargs)
+            except:
+                pass
+
+    return call
+
+
 def wire(perpetual=False) -> Tuple[Callable, Callable]:
     """
     Returns a tuple of two decorators: `trigger_decorator` and `listen_decorator`.

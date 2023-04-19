@@ -24,7 +24,6 @@ def routine(
 ) -> Callable:
     """
     Specifies a function to be executed as a routine.
-
     **args**:
     - frequency : the frequency at which the routine should run
     - condition : to prevent the triggering

@@ -26,7 +26,7 @@ def option(name: str, **kwargs):  # pragma: no cover
     - kwargs: dict -> the options used by [argparse](https://docs.python.org/3/library/argparse.html)
     """
     global OPTIONS
-    logging.debug("added new option %s", name)
+    logging.debug("+ option %s", name)
     OPTIONS[name] = kwargs
 
 
