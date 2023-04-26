@@ -33,20 +33,28 @@ def chain(*functions):
     return _chain
 
 
-def until_success(function):
-    """Tries function until success"""
+def until_success():
+    delay = 1
 
-    async def call(*args, **kwargs):
-        while True:
-            try:
-                return await autofill(function, args=args, **kwargs)
-            except:
-                pass
+    def retry_until_success(function: Callable):
+        async def call(*args, **kwargs):
+            nonlocal delay
+            while True:
+                try:
+                    result = await autofill(function, args=args, **kwargs)
+                    delay = 1
+                    return result
+                except:
+                    if delay < 1200:
+                        delay = delay * 2
+                    await asyncio.sleep(delay)
 
-    return call
+        return call
+
+    return retry_until_success
 
 
-def wire(perpetual=False) -> Tuple[Callable, Callable]:
+def wire(perpetual=False, pass_args=True) -> Tuple[Callable, Callable]:
     """
     Returns a tuple of two decorators: `trigger_decorator` and `listen_decorator`.
 
@@ -101,7 +109,6 @@ def wire(perpetual=False) -> Tuple[Callable, Callable]:
     > my_function_called with 1
     ```
 
-
     **Returns**:
     - A tuple of two decorators: `trigger_decorator` and `listen_decorator`.
     """
@@ -118,13 +125,17 @@ def wire(perpetual=False) -> Tuple[Callable, Callable]:
                     tasks = []
                     for val in result:
                         tasks += [
-                            asyncio.create_task(caster(func, args=[val], **kwargs))
+                            asyncio.create_task(
+                                caster(func, args=[val] if pass_args else [], **kwargs)
+                            )
                             for func in listeners
                             if func
                         ]
                 else:
                     tasks = [
-                        asyncio.create_task(caster(func, args=[result], **kwargs))
+                        asyncio.create_task(
+                            caster(func, args=[result] if pass_args else [], **kwargs)
+                        )
                         for func in listeners
                         if func
                     ]
@@ -389,7 +400,7 @@ def do_raise(exception):
 def expect(
     trigger: Callable,
     condition: Callable = return_true,
-    retries: int = 1,
+    retries=float("inf"),
     on_raise=do_raise,
 ) -> Callable:
     """
@@ -399,10 +410,11 @@ def expect(
 
     def decorator(function: Callable) -> Callable:
         counter = 0
+        delay = 1
 
         @wraps(function)
         async def _expect(*args, **kwargs):
-            nonlocal counter
+            nonlocal counter, delay
             try:
                 result = await autofill(function, args=args, **kwargs)
                 counter = 0
@@ -412,6 +424,8 @@ def expect(
                     raise (raised_error)
                 elif condition(args, raised_error):
                     counter += 1
+                    await asyncio.sleep(delay)
+                    delay = delay * 2
                     await perpetuate(trigger, args=[], **kwargs)
                     return await _expect(*args, **kwargs)
                 else:

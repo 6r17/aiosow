@@ -97,7 +97,7 @@ async def autofill(function: Callable, args: Any = [], **kwargs) -> Any:
         given_args = [
             memory
             if name == "memory"
-            else await autofill(ALIASES[name], args=args, memory=memory)
+            else await autofill(ALIASES[name], args=[], memory=memory)
             if name in ALIASES
             else argscopy.pop(0)
             if len(argscopy) > 0

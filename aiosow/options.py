@@ -12,12 +12,11 @@ option('keyword', default='foo', help='Keyword to use')
 Any option defined is propagated into the memory, in fact the initial memory is
 a copy of the parsed arguments.
 """
-import logging
 
-OPTIONS = {}
+OPTIONS = []
 
 
-def option(name: str, **kwargs):  # pragma: no cover
+def option(*args, **kwargs):  # pragma: no cover
     """
     Register an argparse option to be available using the command-line.
 
@@ -26,8 +25,7 @@ def option(name: str, **kwargs):  # pragma: no cover
     - kwargs: dict -> the options used by [argparse](https://docs.python.org/3/library/argparse.html)
     """
     global OPTIONS
-    logging.debug("+ option %s", name)
-    OPTIONS[name] = kwargs
+    OPTIONS.append((args, kwargs))
 
 
 def options():  # pragma: no cover
