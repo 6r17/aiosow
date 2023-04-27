@@ -194,18 +194,21 @@ def call_limit(seconds):
         last_called = 0
 
         @wraps(func)
-        def wrapper(*args, **kwargs):
+        async def wrapper(*args, **kwargs):
             nonlocal last_called
-            current_time = time.monotonic()
-            if current_time - last_called >= seconds:
+            if time.monotonic() - last_called >= seconds:
                 try:
-                    result = autofill(func, args=args, **kwargs)
-                except Exception as e:
-                    last_called = current_time
-                    raise e
-                else:
-                    last_called = current_time
+                    result = await autofill(func, args=args, **kwargs)
+                    last_called = time.monotonic()
                     return result
+                except Exception as e:
+                    last_called = time.monotonic()
+                    raise e
+            else:
+                await asyncio.sleep(seconds - (time.monotonic() - last_called))
+                result = await autofill(func, args=args, **kwargs)
+                last_called = time.monotonic()
+                return result
 
         return wrapper
 

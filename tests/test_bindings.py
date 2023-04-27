@@ -1,6 +1,7 @@
 import time
 import pytest
 from aiosow.bindings import (
+    call_limit,
     chain,
     delay,
     wrap,
@@ -196,9 +197,17 @@ async def test_chain():
     def sub(x):
         return x - 3
 
+    def _break(__x__):
+        pass
+
     result = await chain(add, mul, sub)(1)
     # 1 + 1 = 2 ; 2 * 2 = 4 ; 4 - 3 = 1
     assert result == 1
+    result = await chain(add, _break)(1)
+    assert result == None
+    with pytest.raises(Exception):
+        result = await chain(add, _break, add)(1)
+        assert result == 2
 
 
 @pytest.mark.asyncio
@@ -216,3 +225,32 @@ async def test_until_success():
 
     result = await succeed_on_second_attempt()
     assert result == 42
+
+
+@pytest.mark.asyncio
+async def test_call_limit():
+    @call_limit(1)
+    async def increment(x):
+        return x + 1
+
+    start_time = time.monotonic()
+    result = await increment(0)
+    result = await increment(0)
+    diff = time.monotonic() - start_time
+    assert result == 1
+    assert diff >= 1
+
+
+@pytest.mark.asyncio
+async def test_raiser():
+    @call_limit(1)
+    async def raiser():
+        raise ValueError("fail")
+
+    start_time = time.monotonic()
+    with pytest.raises(Exception):
+        await raiser()
+    with pytest.raises(Exception):
+        await raiser()
+    diff = time.monotonic() - start_time
+    assert diff >= 1
