@@ -26,8 +26,6 @@ def chain(*functions):
             )
             if sig.annotations.get("return") is not inspect._empty:
                 has_result = True
-            else:
-                has_result = False
         return result
 
     return _chain
