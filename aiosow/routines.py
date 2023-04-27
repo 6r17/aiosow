@@ -75,37 +75,35 @@ def routine(
 
 async def consume_routines(memory):
     routines = get_routines()
-    while routines:
-        # Find the routine with the smallest remaining timeout or a timeout <= 0
-        smallest_timeout_routine = min(routines, key=lambda x: x["timeout"])
-        smallest_timeout = smallest_timeout_routine["timeout"]
-        if smallest_timeout <= 0:
-            smallest_timeout = 0
+    # Find the routine with the smallest remaining timeout or a timeout <= 0
+    smallest_timeout_routine = min(routines, key=lambda x: x["timeout"])
+    smallest_timeout = smallest_timeout_routine["timeout"]
 
-        # Wait until the smallest timeout has elapsed
-        await asyncio.sleep(smallest_timeout)
+    # Wait until the smallest timeout has elapsed
+    await asyncio.sleep(smallest_timeout)
 
-        # Execute any routines that have timed out
-        for routine in routines:
-            routine["timeout"] -= smallest_timeout
-            if routine["timeout"] <= 0:
-                condition = routine["condition"]
-                function = routine["function"]
-                # Check the condition before running the routine
-                try:
-                    if await autofill(condition, args=[], memory=memory):
-                        if routine["perpetuate"]:
-                            await perpetuate(function, args=[], memory=memory)
-                        else:
-                            await autofill(function, args=[], memory=memory)
-                except Exception as err:
-                    if memory["raise"]:
-                        raise (err)
-                # Update the timeout value based on the frequency
-                if routine["frequency"] > 0:
-                    routine["timeout"] = routine["frequency"]
-                else:
-                    routines.remove(routine)
+    # Execute any routines that have timed out
+    for routine in routines:
+        routine["timeout"] -= smallest_timeout
+        routine["timeout"] = 0 if routine["timeout"] < 0 else routine["timeout"]
+        if routine["timeout"] <= 0:
+            condition = routine["condition"]
+            function = routine["function"]
+            # Check the condition before running the routine
+            try:
+                if await autofill(condition, args=[], memory=memory):
+                    if routine["perpetuate"]:
+                        await perpetuate(function, args=[], memory=memory)
+                    else:
+                        await autofill(function, args=[], memory=memory)
+            except Exception as err:
+                if memory.get("raise", False):
+                    raise (err)
+            # Update the timeout value based on the frequency
+            if routine["frequency"] > 0:
+                routine["timeout"] = routine["frequency"]
+            else:
+                routines.remove(routine)
 
 
 async def routine_consumer(memory):  # pragma: no cover
