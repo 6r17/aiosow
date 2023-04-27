@@ -90,6 +90,11 @@ async def perpetuate(function: Callable, args: Any = [], memory: Any = {}) -> An
                         await asyncio.gather(
                             *[
                                 autofill(func, args=[iterated], memory=memory)
+                                for iterated in value.items()
+                            ]
+                            if isinstance(value, dict)
+                            else [
+                                autofill(func, args=[iterated], memory=memory)
                                 for iterated in value
                             ]
                         )
@@ -98,5 +103,5 @@ async def perpetuate(function: Callable, args: Any = [], memory: Any = {}) -> An
                             condition
                             and await autofill(condition, args=[value], memory=memory)
                         ) or not condition:
-                            await autofill(func, args=[value], memory=memory)
+                            await perpetuate(func, args=[value], memory=memory)
     return update

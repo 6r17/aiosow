@@ -1,10 +1,34 @@
 from typing import Callable
+from functools import wraps
 
-import asyncio
+import asyncio, logging
 
-from aiosow.setup import setup
 from aiosow.perpetuate import perpetuate, autofill
-from aiosow.bindings import delay
+from aiosow.bindings import return_true
+
+
+def infinite_generator(condition: Callable):
+    def _generator_consumer(function: Callable):
+        """Re-autofill a generator function at end of it's loop"""
+
+        iterated = None
+
+        @wraps(function)
+        async def __generator_consumer(*args, **kwargs):
+            nonlocal iterated
+            while await autofill(condition, args=args, **kwargs):
+                if not iterated:
+                    iterated = await autofill(function, args=args, **kwargs)
+                try:
+                    return await iterated.__anext__()
+                except StopAsyncIteration:
+                    iterated = await autofill(function, args=args, **kwargs)
+                    return await iterated.__anext__()
+
+        return __generator_consumer
+
+    return _generator_consumer
+
 
 ROUTINES = []
 
@@ -20,31 +44,26 @@ def get_routines():
 
 
 def routine(
-    interval: int,
-    life=0,
-    repeat=True,
-    condition: Callable | None = None,
+    frequency: int | float,
+    condition: Callable = return_true,
+    timeout: int = -1,
     perpetuate=True,
 ) -> Callable:
     """
     Specifies a function to be executed as a routine.
-
     **args**:
-    - interval : the interval at which the routine should run
-    - function : the function to run
-    - repeat : wether it should repeat
-    - life : the initial amount of time before next trigger
+    - frequency : the frequency at which the routine should run
     - condition : to prevent the triggering
     - perpetuate : wether the result should be saved in memory
     """
 
     def decorator(fn: Callable) -> Callable:
+        logging.info("+ routine %s", fn.__name__)
         ROUTINES.append(
             {
-                "interval": interval,
+                "frequency": frequency,
+                "timeout": timeout if timeout >= 0 else abs(frequency),
                 "function": fn,
-                "repeat": repeat,
-                "life": life,
                 "condition": condition,
                 "perpetuate": perpetuate,
             }
@@ -54,29 +73,46 @@ def routine(
     return decorator
 
 
-@delay(1)
 async def consume_routines(memory):
-    for routine in ROUTINES:
-        routine["life"] = routine["life"] - 1
-        if routine["life"] <= 0:
-            if routine["perpetuate"]:
-                await perpetuate(routine["function"], memory=memory)
+    routines = get_routines()
+    # Find the routine with the smallest remaining timeout or a timeout <= 0
+    smallest_timeout_routine = min(routines, key=lambda x: x["timeout"])
+    smallest_timeout = smallest_timeout_routine["timeout"]
+
+    # Wait until the smallest timeout has elapsed
+    await asyncio.sleep(smallest_timeout)
+
+    # Execute any routines that have timed out
+    for routine in routines:
+        routine["timeout"] -= smallest_timeout
+        routine["timeout"] = 0 if routine["timeout"] < 0 else routine["timeout"]
+        if routine["timeout"] <= 0:
+            condition = routine["condition"]
+            function = routine["function"]
+            # Check the condition before running the routine
+            try:
+                if await autofill(condition, args=[], memory=memory):
+                    if routine["perpetuate"]:
+                        await perpetuate(function, args=[], memory=memory)
+                    else:
+                        await autofill(function, args=[], memory=memory)
+            except Exception as err:
+                if memory.get("raise", False):
+                    raise (err)
+            # Update the timeout value based on the frequency
+            if routine["frequency"] > 0:
+                routine["timeout"] = routine["frequency"]
             else:
-                await autofill(routine["function"], memory=memory)
-            if routine["repeat"]:
-                routine["life"] = routine["interval"]
-            else:
-                ROUTINES.remove(routine)
+                routines.remove(routine)
 
 
-async def consumer(memory):  # pragma: no cover
+async def routine_consumer(memory):  # pragma: no cover
     while True:
         await autofill(consume_routines, memory=memory)
 
 
-@setup
-async def spawn_consumer(memory):  # pragma: no cover
-    return asyncio.create_task(consumer(memory))
+async def spawn_routine_consumer(memory):  # pragma: no cover
+    return asyncio.create_task(routine_consumer(memory))
 
 
-__all__ = ["routine"]
+__all__ = ["routine", "infinite_generator"]

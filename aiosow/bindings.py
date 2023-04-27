@@ -13,7 +13,46 @@ from aiosow.perpetuate import on, perpetuate
 from aiosow.setup import setup
 
 
-def wire() -> Tuple[Callable, Callable]:
+def chain(*functions):
+    """Applies functions iteratively and pass each result to next function"""
+
+    async def _chain(*args, **kwargs):
+        result = None
+        has_result = False
+        for function in functions:
+            sig = inspect.getfullargspec(function)
+            result = await perpetuate(
+                function, args=[result] if has_result else list(args), **kwargs
+            )
+            if sig.annotations.get("return") is not inspect._empty:
+                has_result = True
+        return result
+
+    return _chain
+
+
+def until_success():
+    delay = 1
+
+    def retry_until_success(function: Callable):
+        async def call(*args, **kwargs):
+            nonlocal delay
+            while True:
+                try:
+                    result = await autofill(function, args=args, **kwargs)
+                    delay = 1
+                    return result
+                except:
+                    if delay < 1200:
+                        delay = delay * 2
+                    await asyncio.sleep(delay)
+
+        return call
+
+    return retry_until_success
+
+
+def wire(perpetual=False, pass_args=True) -> Tuple[Callable, Callable]:
     """
     Returns a tuple of two decorators: `trigger_decorator` and `listen_decorator`.
 
@@ -68,11 +107,11 @@ def wire() -> Tuple[Callable, Callable]:
     > my_function_called with 1
     ```
 
-
     **Returns**:
     - A tuple of two decorators: `trigger_decorator` and `listen_decorator`.
     """
     listeners = []
+    caster = autofill if not perpetual else perpetuate
 
     def trigger_decorator(triggerer):
         @wraps(triggerer)
@@ -84,13 +123,17 @@ def wire() -> Tuple[Callable, Callable]:
                     tasks = []
                     for val in result:
                         tasks += [
-                            asyncio.create_task(autofill(func, args=[val], **kwargs))
+                            asyncio.create_task(
+                                caster(func, args=[val] if pass_args else [], **kwargs)
+                            )
                             for func in listeners
                             if func
                         ]
                 else:
                     tasks = [
-                        asyncio.create_task(autofill(func, args=[result], **kwargs))
+                        asyncio.create_task(
+                            caster(func, args=[result] if pass_args else [], **kwargs)
+                        )
                         for func in listeners
                         if func
                     ]
@@ -129,6 +172,45 @@ def accumulator(size: int | Callable) -> Callable:
                 return await autofill(function, args=[argument], **kwargs)
 
         return execute
+
+    return decorator
+
+
+def call_limit(seconds):
+    """
+    A decorator that limits the frequency of function calls based on the number
+    of seconds specified in the decorator parameter.
+
+    **Args**:
+        - seconds (int): The minimum number of seconds that must elapse between
+            function calls.
+
+    **Returns**:
+        - function: A decorated function that can only be called once every
+            `seconds` seconds.
+    """
+
+    def decorator(func):
+        last_called = 0
+
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            nonlocal last_called
+            if time.monotonic() - last_called >= seconds:
+                try:
+                    result = await autofill(func, args=args, **kwargs)
+                    last_called = time.monotonic()
+                    return result
+                except Exception as e:
+                    last_called = time.monotonic()
+                    raise e
+            else:
+                await asyncio.sleep(seconds - (time.monotonic() - last_called))
+                result = await autofill(func, args=args, **kwargs)
+                last_called = time.monotonic()
+                return result
+
+        return wrapper
 
     return decorator
 
@@ -284,6 +366,81 @@ def debug(trigger: Callable[[Exception, Callable, Tuple], Any]) -> Callable:
                 trigger(e, function, args)
 
         return execute
+
+    return decorator
+
+
+def return_true(*__args__):
+    """
+    Python doesn't allow lambda definition inside prototype
+    This function is used as a default value for conditional parameters that
+    take a function to filter behavior.
+    """
+    return True
+
+
+def return_false(*__args__):
+    """
+    Python doesn't allow lambda definition inside prototype
+    This function is used as a default value for conditional parameters that
+    take a function to filter behavior.
+    """
+    return False
+
+
+def do_raise(exception):
+    """
+    Python doesn't allow lambda definition inside prototype
+    This function is used as a default value for conditional parameters that
+    allow custom definition of behavior on exception.
+    """
+
+    raise exception
+
+
+def dont_raise(__exception__):
+    """
+    Python doesn't allow lambda definition inside prototype
+    This function is used as a default value for conditional parameters that
+    allow custom definition of behavior on exception.
+    """
+
+
+def expect(
+    trigger: Callable,
+    condition: Callable = return_true,
+    retries=float("inf"),
+    on_raise=do_raise,
+) -> Callable:
+    """
+    Decorated function is retried after perpetuation of trigger function on
+    Exception.
+    """
+
+    def decorator(function: Callable) -> Callable:
+        counter = 0
+        delay = 1
+
+        @wraps(function)
+        async def _expect(*args, **kwargs):
+            nonlocal counter, delay
+            try:
+                result = await autofill(function, args=args, **kwargs)
+                counter = 0
+                return result
+            except Exception as raised_error:
+                if counter >= retries:
+                    on_raise(raised_error)
+                elif condition(args, raised_error):
+                    counter += 1
+                    await asyncio.sleep(delay)
+                    delay = delay * 2
+                    await perpetuate(trigger, args=[], **kwargs)
+                    return await _expect(*args, **kwargs)
+                else:
+                    on_raise(raised_error)
+
+        return _expect
 
     return decorator
 

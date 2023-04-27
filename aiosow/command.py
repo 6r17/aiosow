@@ -3,6 +3,7 @@
 import logging, asyncio, importlib, argparse, sys
 from aiosow.setup import initialize
 from aiosow.options import options
+from aiosow.routines import spawn_routine_consumer
 
 
 def load_composition(composition=None):
@@ -11,7 +12,12 @@ def load_composition(composition=None):
         or "--debug" in sys.argv
         or any(arg.find("-d") != -1 or arg.find("--debug") != -1 for arg in sys.argv)
     )
-    logging.basicConfig(level=logging.DEBUG if debug else logging.INFO)
+    if not "-h" in sys.argv:
+        logging.basicConfig(
+            level=logging.DEBUG if debug else logging.INFO,
+            format="[%(asctime)s][%(levelname)s] \t%(message)s",
+            datefmt="%H:%M:%S",
+        )
     parser = argparse.ArgumentParser()
     if not composition:
         parser.add_argument("composition", help="composition to run")
@@ -29,10 +35,10 @@ def load_composition(composition=None):
         help="Log.debug every autofill arguments",
     )
     parser.add_argument(
-        "--no_run_forever",
+        "--raise",
         default=False,
         action="store_true",
-        help="Whether it should run forever",
+        help="Routines will raise errors and stop the execution",
     )
     try:
         if not composition:
@@ -44,8 +50,14 @@ def load_composition(composition=None):
     except Exception as e:
         logging.error("An error occured opening the composition")
         raise (e)
-    for name, args in options().items():
-        parser.add_argument(f"--{name}", **args)
+    for module_name in sys.modules.keys():
+        if "bindings" in module_name and "aiosow" not in module_name:
+            logging.info("+ composition %s", module_name)
+    logging.info("--------------------------------")
+    logging.info("-------------START--------------")
+    logging.info("--------------------------------")
+    for args, kwargs in options():
+        parser.add_argument(*args, **kwargs)
     return vars(parser.parse_args())
 
 
@@ -55,10 +67,15 @@ def run(composition=None):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     tasks = loop.run_until_complete(initialize(memory))
+    logging.info("--------------------------------")
+    logging.info("----------SETUP--DONE-----------")
+    logging.info("--------------------------------")
+    consumer = loop.run_until_complete(spawn_routine_consumer(memory))
+    tasks = tasks + [consumer]
     # setups can return a task which is ran here
     # this allows setups to start tasks and still have them complete
     loop.run_until_complete(asyncio.gather(*tasks))
-    if not memory["no_run_forever"]:
+    if memory["run_forever"]:
         loop.run_forever()
 
 
