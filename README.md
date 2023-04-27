@@ -1,6 +1,6 @@
 [![Pypi](https://img.shields.io/pypi/v/aiosow?color=white&style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/aiosow/)
 ![Downloads](https://img.shields.io/pypi/dd/aiosow?style=for-the-badge)
-[![Build](https://img.shields.io/github/actions/workflow/status/exorde-labs/aiosow/test?label=Build&logo=github&style=for-the-badge)](https://github.com/exorde-labs/aiosow) 
+[![Build](https://img.shields.io/github/actions/workflow/status/exorde-labs/aiosow/test.yml?style=for-the-badge)](https://github.com/exorde-labs/aiosow) 
 [![Discord](https://img.shields.io/discord/1085963894641664203?label=Discord%20&style=for-the-badge&logo=discord&logoColor=white&color=white)](https://discord.gg/XNbmN9zumv)
 [![Documentation](https://img.shields.io/badge/-documentation-white?style=for-the-badge)](https://exorde-labs.github.io/aiosow)
 
