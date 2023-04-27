@@ -1,6 +1,10 @@
 import time
 import pytest
 from aiosow.bindings import (
+    expect,
+    do_raise,
+    return_true,
+    return_false,
     call_limit,
     chain,
     delay,
@@ -34,27 +38,27 @@ def asynchronous_function():
 
 
 @pytest.mark.asyncio
-async def test_wire_triggers_listeners():
+async def test_wire_do_unlocks_listeners():
     mock_listener = Mock()
     mock_listener.__name__ = "mock"
-    trigger_decorator, listen_decorator = wire()
+    do_unlock_decorator, listen_decorator = wire()
     listen_decorator(mock_listener)
-    await trigger_decorator(lambda: 1)()
+    await do_unlock_decorator(lambda: 1)()
     assert mock_listener.call_count == 1
 
 
 @pytest.mark.asyncio
-async def test_wire_triggers_with_generator():
+async def test_wire_do_unlocks_with_generator():
     mock_listener = Mock()
     mock_listener.__name__ = "mock"
-    trigger_decorator, listen_decorator = wire()
+    do_unlock_decorator, listen_decorator = wire()
     listen_decorator(mock_listener)
 
     def generator():
         for i in range(3):
             yield i
 
-    await trigger_decorator(generator)()
+    await do_unlock_decorator(generator)()
     assert mock_listener.call_count == 3
 
 
@@ -64,20 +68,20 @@ async def test_wire_chain():
     mock_start.__name__ = "mock-start"
     mock_end = Mock()
     mock_end.__name__ = "mock-end"
-    a_trigger_on, a_on_trigger_do = wire()
-    b_trigger_on, b_on_trigger_do = wire()
+    a_do_unlock_on, a_on_do_unlock_do = wire()
+    b_do_unlock_on, b_on_do_unlock_do = wire()
 
-    trigger = a_trigger_on(mock_start)
-    value_trigger = a_trigger_on(lambda value: value)
+    do_unlock = a_do_unlock_on(mock_start)
+    value_do_unlock = a_do_unlock_on(lambda value: value)
 
-    a_on_trigger_do(b_trigger_on(lambda value: value))
-    b_on_trigger_do(mock_end)
+    a_on_do_unlock_do(b_do_unlock_on(lambda value: value))
+    b_on_do_unlock_do(mock_end)
 
-    await trigger()
+    await do_unlock()
     assert mock_start.call_count == 1
     assert mock_end.call_count == 1
 
-    await value_trigger(2)
+    await value_do_unlock(2)
     assert mock_end.call_count == 2
     mock_end.assert_called_with(2)
 
@@ -159,7 +163,7 @@ async def test_read_only():
 @pytest.mark.asyncio
 async def test_debug():
     mock_listener = Mock()
-    mock_listener.__name__ = "trigger"
+    mock_listener.__name__ = "do_unlock"
 
     @debug(mock_listener)
     async def raises():
@@ -254,3 +258,50 @@ async def test_raiser():
         await raiser()
     diff = time.monotonic() - start_time
     assert diff >= 1
+
+
+def test_return_true():
+    assert return_true() == True
+
+
+def test_return_false():
+    assert return_false() == False
+
+
+def test_do_raise():
+    with pytest.raises(ValueError):
+        do_raise(ValueError)
+
+
+from unittest.mock import MagicMock
+
+
+@pytest.mark.asyncio
+async def test_expect():
+    lock = False
+
+    def unlock(*__args__, **__kwargs__):
+        nonlocal lock
+        lock = True
+
+    do_unlock = MagicMock(side_effect=unlock)
+    dont_unlock = MagicMock()
+
+    async def raise_if_lock_is_false():
+        nonlocal lock
+        if not lock:
+            raise ValueError
+        else:
+            return lock
+
+    mocked = MagicMock(side_effect=raise_if_lock_is_false)
+    patched = expect(do_unlock, retries=2)(mocked)
+    result = await patched()
+    assert result == True
+
+    lock = False
+
+    with pytest.raises(ValueError):
+        mocked = MagicMock(side_effect=raise_if_lock_is_false)
+        patched = expect(dont_unlock, retries=1)(mocked)
+        result = await patched()
