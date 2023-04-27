@@ -398,6 +398,14 @@ def do_raise(exception):
     raise exception
 
 
+def dont_raise(__exception__):
+    """
+    Python doesn't allow lambda definition inside prototype
+    This function is used as a default value for conditional parameters that
+    allow custom definition of behavior on exception.
+    """
+
+
 def expect(
     trigger: Callable,
     condition: Callable = return_true,
@@ -422,7 +430,7 @@ def expect(
                 return result
             except Exception as raised_error:
                 if counter >= retries:
-                    raise (raised_error)
+                    on_raise(raised_error)
                 elif condition(args, raised_error):
                     counter += 1
                     await asyncio.sleep(delay)

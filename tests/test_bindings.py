@@ -3,6 +3,7 @@ import pytest
 from aiosow.bindings import (
     expect,
     do_raise,
+    dont_raise,
     return_true,
     return_false,
     call_limit,
@@ -305,3 +306,10 @@ async def test_expect():
         mocked = MagicMock(side_effect=raise_if_lock_is_false)
         patched = expect(dont_unlock, retries=1)(mocked)
         result = await patched()
+
+    lock = False
+    mocked = MagicMock(side_effect=raise_if_lock_is_false)
+    patched = expect(
+        dont_unlock, retries=1, on_raise=dont_raise, condition=return_false
+    )(mocked)
+    result = await patched()
