@@ -1,6 +1,7 @@
 import time
 import pytest
 from aiosow.bindings import (
+    chain,
     delay,
     wrap,
     each,
@@ -9,6 +10,7 @@ from aiosow.bindings import (
     read_only,
     debug,
     make_async,
+    until_success,
 )
 
 from unittest.mock import Mock
@@ -181,3 +183,36 @@ async def test_make_async():
     end_time = time.monotonic()
     assert results == ["foo", "foo", "foo"]
     assert end_time - start_time < (0.3)
+
+
+@pytest.mark.asyncio
+async def test_chain():
+    def add(x):
+        return x + 1
+
+    def mul(x):
+        return x * 2
+
+    def sub(x):
+        return x - 3
+
+    result = await chain(add, mul, sub)(1)
+    # 1 + 1 = 2 ; 2 * 2 = 4 ; 4 - 3 = 1
+    assert result == 1
+
+
+@pytest.mark.asyncio
+async def test_until_success():
+    attempt = 1
+
+    @until_success()
+    async def succeed_on_second_attempt():
+        nonlocal attempt
+        if attempt == 1:
+            attempt += 1
+            raise ValueError("fail once")
+        else:
+            return 42
+
+    result = await succeed_on_second_attempt()
+    assert result == 42
