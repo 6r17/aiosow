@@ -4,30 +4,20 @@
 [![Discord](https://img.shields.io/discord/1085963894641664203?label=Discord%20&style=for-the-badge&logo=discord&logoColor=white&color=white)](https://discord.gg/XNbmN9zumv)
 [![Documentation](https://img.shields.io/badge/-documentation-white?style=for-the-badge)](https://exorde-labs.github.io/aiosow)
 
-## Streamline your Python Data Pipeline in one package
-Building an all-in-one package that does api, scraping and integrates slow processing is hard.
+## **A**synchronous **I**/**O** **S**oftware **O**rchestration **W**orkstation
 
-`aiosow` glues this all together.
+`aiosow` is software orchestration framework on top of an asynchronous task manager.
 
+It is meant to allow software architect shape how code should be used.
 
-## Efficient, Event-Based, Modular
-
-- Asynchronous
-
-For efficient performance in I/O operations.
-
-- Event-based
-
-Helps you focus on the desired outcome rather than every single step.
-
-- Modular 
-
-Allow each part of the codebase to be developed independently.
-
+- Define your contributors boundaries without being restricted by a framework
+- Allows code to live with it's problem instead of being tied to technical elements
+- Allows unparalled modularity
 
 ## Enforced Separation of Concerns 
 
 `aiosow` encourage a structure that separate implementations from the behavior.
+
 Defined boundaries for different parts of the codebase, makes it easier to maintain and scale.
 As a result, `aiosow` can provide a set of tools that let developers interconnect and 
 customize multiple compositions with ease.
@@ -46,7 +36,6 @@ It allows to react to changes in the system and implement logic based on those c
 
 - `aiosow.bindings` helps you express configurability, further data-piping, time-constraints, and more... 
 - `aiosow.routines` helps you schedule code to flow trough time 
-- `aiosow.aiohttp` helps with HTTP requests
 
 ## Compositions
 
