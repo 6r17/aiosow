@@ -10,11 +10,10 @@
 
 It is meant to allow software architect shape how code should be used.
 
-- Define your contributors boundaries without being restricted by a framework
-- Allows code to live with it's problem instead of being tied to technical elements
-- Allows unparalled modularity
-
-## Enforced Separation of Concerns 
+- Enforced Separation of Concerns 
+- Unparalled modularity
+- You draw your framework
+- Code lives with it's problem
 
 `aiosow` encourage a structure that separate implementations from the behavior.
 
