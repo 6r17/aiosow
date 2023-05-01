@@ -8,31 +8,43 @@
 
 `aiosow` is functionnal framework on top of an asynchronous task manager.
 
-It is meant to allow software architect shape how code should be used.
+> It is meant to allow software architect shape how code should be used.
 
 - **Enforced Separation of Concerns** 
 
 `aiosow` encourage a structure that separate implementations from the behavior.
 
-Defined boundaries for different parts of the codebase, makes it easier to maintain and scale.
-`aiosow` provide a set of tools that let developers interconnect and customize multiple features.
+Defined boundaries for different parts of the codebase makes it easier to reason from buisness perspective.
 
-- **Unparalled modularity**
+[![How to structure a project](https://img.shields.io/badge/How%20to-%20structure%20a%20project-blue?style=for-the-badge)]()
+
+- **No framework friction & Unparalled modularity**
+
+Implementation have no knoweledge of `aiosow`.
 
 Splitting `implementation` from their usage allows one to completely rewrite how it's different
 elements are used, swap them, combine them.
 
-- **No framework friction**
+[![How to write bindings](https://img.shields.io/badge/How%20to-write%20bindings-blue?style=for-the-badge)]()
 
-Conventions, rules and boundaries should be defined by team's architect or by teams themselves, not
-by a tool. `aiosow` also makes sure that implementation have no knowledge of the framework, making
-implementation focused on the problem rather than the tools.
 
-- **Code lives with it's problem**
+### Example
 
-A space dedicated to each buisness problem rather than technical-problems makes it easier to reason
-from buisness perspective instead of engineering.
+`implementation.py`
+```python
 
+def initialize_memory():
+    return { "message": "hello world !" }
+
+def print_message(message):
+    print(message)
+```
+
+`bindings.py`
+```python
+setup(initialize_memory)
+routine(1)(print_message)
+```
 
 ## License
 
