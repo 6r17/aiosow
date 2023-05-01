@@ -10,31 +10,41 @@
 
 It is meant to allow software architect shape how code should be used.
 
-- Enforced Separation of Concerns 
-- Unparalled modularity
-- You draw your framework
-- Code lives with it's problem
+- **Enforced Separation of Concerns** 
 
 `aiosow` encourage a structure that separate implementations from the behavior.
 
 Defined boundaries for different parts of the codebase, makes it easier to maintain and scale.
-As a result, `aiosow` can provide a set of tools that let developers interconnect and 
-customize multiple compositions with ease.
+`aiosow` provide a set of tools that let developers interconnect and customize multiple features.
+
+- **Unparalled modularity**
+
+Splitting `implementation` from their usage allows one to completely rewrite how it's different
+elements are used, swap them, combine them.
+
+- **No framework friction**
+
+Conventions, rules and boundaries should be defined by team's architect or by teams themselves, not
+by a tool. `aiosow` also makes sure that implementation have no knowledge of the framework, making
+implementation focused on the problem rather than the tools.
+
+- **Code lives with it's problem**
+
+A space dedicated to each buisness problem rather than technical-problems makes it easier to reason
+from buisness perspective instead of engineering.
 
 ## Customizable Asynchronous State-Machine
-`aiosow` is a programmable state-machine customizable with decorators and utilities for easy and efficient event triggering implementations.
-State-machines provides a way to manage the flow of a system by storing and managing mutations in the `memory`. 
+`aiosow` is a state-machine that you program trough an event-based expression paradigm.
 
-- One global `memory` represented as a `dict`
-- Mutations are the changes, just return a `dict` and you got a valid mutation
-- To bind this function in the state-machine you use `aiosow.bindings`
+Event-based is a paradigm that allows one to express `when` code should run.
+
+In `aiosow` we do that using **bindings**
 
 These bindings allow to program the machine and express when to call the appropriate functions in the correct order, ensuring that the system behaves as expected.
-The state machine is a useful tool for managing complex systems and ensuring that behavior is well-defined and predictable.
-It allows to react to changes in the system and implement logic based on those changes (see `aiosow.bindings.on` for instance).
 
-- `aiosow.bindings` helps you express configurability, further data-piping, time-constraints, and more... 
-- `aiosow.routines` helps you schedule code to flow trough time 
+The state machine is a useful tool for managing complex systems and ensuring that behavior is well-defined and predictable.
+It allows to react to changes in the system and implement logic based on those changes.
+
 
 ## Compositions
 
