@@ -16,16 +16,12 @@
 
 Defined boundaries for different parts of the codebase makes it easier to reason from buisness perspective.
 
-[![How to structure a project](https://img.shields.io/badge/How%20to-%20structure%20a%20project-blue?style=for-the-badge)]()
-
 - **No framework friction & Unparalled modularity**
 
 Implementation have no knoweledge of `aiosow`.
 
 Splitting `implementation` from their usage allows one to completely rewrite how it's different
 elements are used, swap them, combine them.
-
-[![How to write bindings](https://img.shields.io/badge/How%20to-write%20bindings-blue?style=for-the-badge)]()
 
 
 ### Example
