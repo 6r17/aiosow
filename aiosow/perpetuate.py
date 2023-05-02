@@ -1,6 +1,6 @@
 import logging, json
 import asyncio
-from typing import Callable, Any
+from typing import Callable, Any, Union
 from collections.abc import Iterable
 
 from aiosow.autofill import autofill
@@ -8,7 +8,7 @@ from aiosow.autofill import autofill
 ONS = {}
 
 
-def on(variable_name: str, condition: Callable | None = None, singularize=False):
+def on(variable_name: str, condition: Union[Callable, None] = None, singularize=False):
     """
     Decorator function that registers a function to be executed when a variable
     of specified name is perpetuated in memory.
