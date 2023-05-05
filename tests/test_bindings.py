@@ -1,4 +1,4 @@
-import time
+import time, asyncio
 import pytest
 from aiosow.bindings import (
     expect,
@@ -174,9 +174,6 @@ async def test_debug():
     assert mock_listener.call_count == 1
 
 
-import time, asyncio
-
-
 @pytest.mark.asyncio
 async def test_make_async():
     @make_async
@@ -189,6 +186,16 @@ async def test_make_async():
     end_time = time.monotonic()
     assert results == ["foo", "foo", "foo"]
     assert end_time - start_time < (0.3)
+
+
+@pytest.mark.asyncio
+async def test_make_async_parameters():
+    @make_async
+    def wait(arg):
+        return arg * 2
+
+    results = await asyncio.gather(wait(2))
+    assert results == [4]
 
 
 @pytest.mark.asyncio
