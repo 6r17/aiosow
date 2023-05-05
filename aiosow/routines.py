@@ -97,6 +97,7 @@ async def consume_routines(memory):
                     else:
                         await autofill(function, args=[], memory=memory)
             except Exception as err:
+                logging.error(err)
                 if memory.get("raise", False):
                     raise (err)
             # Update the timeout value based on the frequency
