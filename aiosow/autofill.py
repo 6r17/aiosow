@@ -5,7 +5,7 @@ await function(*args, **memory) -> this doesn't work because :
 """
 from typing import Any, Callable, List
 
-import inspect, logging
+import inspect, logging, asyncio
 
 ALIASES = {}
 
@@ -48,7 +48,7 @@ def alias(name: str):
     return decorator
 
 
-async def autofill(function: Callable, args: Any = [], **kwargs) -> Any:
+async def fill_prototype(function: Callable, args: Any = [], **kwargs) -> Any:
     """
     The autofill function takes a callable function, args, and memory as input
     arguments, and returns the result of calling the function with autofilled
@@ -114,6 +114,11 @@ async def autofill(function: Callable, args: Any = [], **kwargs) -> Any:
             for param in inspect.signature(function).parameters.values()
         )
         given_args = given_args if not has_varargs else given_args + list(argscopy)
+    return (name, given_args, kws)
+
+
+async def autofill(function: Callable, args: Any = [], **kwargs) -> Any:
+    name, given_args, kws = await fill_prototype(function, args=args, **kwargs)
     try:
         result = function(*given_args, **kws)
         return await result if inspect.iscoroutine(result) else result
@@ -123,4 +128,24 @@ async def autofill(function: Callable, args: Any = [], **kwargs) -> Any:
         raise (err)  # `debug` needs `autofill` to raise
 
 
-__all__ = ["alias", "autofill"]
+def make_async(function: Callable) -> Callable:
+    """
+    Make a synchronous function run in it's own thread
+    using `run_in_executor`.
+
+    **args**:
+    - function: Callable
+
+    **returns**:
+    - Async Callable
+    """
+
+    async def wrapper(*args, **kwargs):
+        loop = asyncio.get_event_loop()
+        __name__, given_args, kws = await fill_prototype(function, args=args, **kwargs)
+        return await loop.run_in_executor(None, function, *given_args, **kws)
+
+    return wrapper
+
+
+__all__ = ["alias", "autofill", "make_async"]

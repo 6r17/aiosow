@@ -7,7 +7,7 @@ import inspect
 
 from functools import wraps
 
-from aiosow.autofill import autofill, alias
+from aiosow.autofill import autofill, alias, make_async
 from aiosow.options import option
 from aiosow.perpetuate import on, perpetuate
 from aiosow.setup import setup
@@ -455,25 +455,6 @@ def pdb(*__args__, **__kwargs__):  # pragma: no cover
     ```
     """
     _pdb.set_trace()
-
-
-def make_async(function: Callable) -> Callable:
-    """
-    Make a synchronous function run in it's own thread
-    using `run_in_executor`.
-
-    **args**:
-    - function: Callable
-
-    **returns**:
-    - Async Callable
-    """
-
-    async def wrapper(*args, **kwargs):
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, function, *args, **kwargs)
-
-    return wrapper
 
 
 __all__ = [
