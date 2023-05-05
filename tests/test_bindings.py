@@ -194,7 +194,7 @@ async def test_make_async_parameters():
     def wait(arg):
         return arg * 2
 
-    results = await asyncio.gather(wait(2))
+    results = await asyncio.gather(wait(2, memory={}))
     assert results == [4]
 
 
