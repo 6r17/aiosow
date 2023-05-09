@@ -4,6 +4,7 @@ await function(*args, **memory) -> this doesn't work because :
     - kwargs itself is a copy and will break reference
 """
 from typing import Any, Callable, List
+from types import LambdaType
 
 import inspect, logging, asyncio
 
@@ -120,6 +121,15 @@ async def fill_prototype(function: Callable, args: Any = [], **kwargs) -> Any:
 async def autofill(function: Callable, args: Any = [], **kwargs) -> Any:
     name, given_args, kws = await fill_prototype(function, args=args, **kwargs)
     try:
+        if kwargs.get("memory", {}).get("log_autofill", False):
+            if name == "<lambda>":
+                name = (
+                    inspect.getsource(function)
+                    .replace("\n", "")
+                    .replace("\t", "")
+                    .replace("    ", "")
+                )
+            logging.info(f" -> {name}")
         result = function(*given_args, **kws)
         return await result if inspect.iscoroutine(result) else result
     except Exception as err:  # pragma: no cover
