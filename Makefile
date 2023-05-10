@@ -27,7 +27,13 @@ pydoc:
 pdoc:
 	env/bin/pdoc aiosow !aiosow.command !aiosow.utils !aiosow.options !aiosow.setup !aiosow.perpetuate !aiosow.autofill -o docs/ --logo 'logo.png' -t './doc-template' --no-show-source
 
-upload:
-	env/bin/pip3 install twine
+pdocmd:
+	env/bin/pdoc aiosow !aiosow.command !aiosow.utils !aiosow.options !aiosow.setup !aiosow.perpetuate !aiosow.autofill --no-show-source -d markdown --output-dir mkdoc
+
+bdist:
+	rm -rf dist build
 	env/bin/python3 setup.py sdist bdist_wheel
-	env/bin/twine upload dist/*
+
+upload: bdist
+	env/bin/pip3 install twine
+	env/bin/twine upload --skip-existing dist/* --verbose
