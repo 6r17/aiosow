@@ -52,7 +52,7 @@ def until_success():
     return retry_until_success
 
 
-def wire(perpetual=False, pass_args=True) -> Tuple[Callable, Callable]:
+def wire(condition=None, perpetual=False, pass_args=True) -> Tuple[Callable, Callable]:
     """
     Returns a tuple of two decorators: `trigger_decorator` and `listen_decorator`.
 
@@ -118,7 +118,9 @@ def wire(perpetual=False, pass_args=True) -> Tuple[Callable, Callable]:
         async def call(*args, **kwargs):
             result = await autofill(triggerer, args=args, **kwargs)
             # if triggerer is a generator we need to iterate over it
-            if result:
+            if result and (
+                await autofill(condition, args=[], **kwargs) if condition else True
+            ):
                 if inspect.isgenerator(result):
                     tasks = []
                     for val in result:

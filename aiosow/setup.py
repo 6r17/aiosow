@@ -20,8 +20,11 @@ def setup(func: Callable) -> Callable:
     **Returns**:
     - func (Callable): The same function, unchanged.
     """
-    logging.info("+ setup %s", func.__name__)
-    SETUP_FUNCTIONS.append(func)
+    if func in SETUP_FUNCTIONS:
+        logging.debug("duplicate setup declaration of %s is ignored", func.__name__)
+    else:
+        logging.info("+ setup %s", func.__name__)
+        SETUP_FUNCTIONS.append(func)
     return func
 
 

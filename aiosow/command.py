@@ -21,9 +21,9 @@ def load_composition(composition=None):
     parser = argparse.ArgumentParser()
     if not composition:
         parser.add_argument("composition", help="composition to run")
-    parser.add_argument(
-        "-c", "--config", help="Path to configuration file", default="", type=str
-    )
+    # parser.add_argument(
+    #    "-c", "--config", help="Path to configuration file", default="", type=str
+    # )
     parser.add_argument(
         "-d", "--debug", default=False, action="store_true", help="Debug mode"
     )
@@ -32,7 +32,7 @@ def load_composition(composition=None):
         "--log_autofill",
         default=False,
         action="store_true",
-        help="Log.debug every autofill arguments",
+        help="Log.info autofilled functions",
     )
     parser.add_argument(
         "--raise",
@@ -67,6 +67,7 @@ def run(composition=None):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     tasks = loop.run_until_complete(initialize(memory))
+    memory["running"] = True
     logging.info("--------------------------------")
     logging.info("----------SETUP--DONE-----------")
     logging.info("--------------------------------")
