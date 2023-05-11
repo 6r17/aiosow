@@ -8,7 +8,7 @@ import inspect
 from functools import wraps
 
 from aiosow.autofill import autofill, alias, make_async
-from aiosow.options import option
+from aiosow.options import option, command
 from aiosow.perpetuate import on, perpetuate
 from aiosow.setup import setup
 
@@ -475,4 +475,5 @@ __all__ = [
     "setup",
     "wrap",
     "wire",
+    "command",
 ]
