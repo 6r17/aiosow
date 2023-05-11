@@ -3,6 +3,12 @@ from typing import Dict, List, Callable
 from aiosow.perpetuate import perpetuate
 
 SETUP_FUNCTIONS: List = []
+TRIGGER_ROUTINES = False
+
+
+def trigger_routines():
+    global TRIGGER_ROUTINES
+    TRIGGER_ROUTINES = True
 
 
 def clear_setups():  # pragma: no cover
