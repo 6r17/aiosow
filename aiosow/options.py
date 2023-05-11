@@ -14,6 +14,7 @@ a copy of the parsed arguments.
 """
 
 OPTIONS = []
+COMMANDS = []
 
 
 def option(*args, **kwargs):  # pragma: no cover
@@ -28,9 +29,31 @@ def option(*args, **kwargs):  # pragma: no cover
     OPTIONS.append((args, kwargs))
 
 
+def command(name):
+    """
+    Register an argparse command to be available using the command-line.
+
+    **args**:
+    - name: str -> the name of the option (will be used as f'--{name}')
+    - kwargs: dict -> the options used by [argparse](https://docs.python.org/3/library/argparse.html)
+    """
+    global COMMANDS
+
+    def register(function):
+        COMMANDS.append((name, function))
+        return function
+
+    return register
+
+
 def options():  # pragma: no cover
     global OPTIONS
     return OPTIONS
 
 
-__all__ = ["option"]
+def commands():  # pragma: no cover
+    global COMMANDS
+    return COMMANDS
+
+
+__all__ = ["option", "command"]

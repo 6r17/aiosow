@@ -5,6 +5,9 @@ import asyncio, logging
 
 from aiosow.perpetuate import perpetuate, autofill
 from aiosow.bindings import return_true
+from aiosow.setup import trigger_routines
+
+trigger_routines()
 
 
 def infinite_generator(condition: Callable):
@@ -76,8 +79,11 @@ def routine(
 async def consume_routines(memory):
     routines = get_routines()
     # Find the routine with the smallest remaining timeout or a timeout <= 0
-    smallest_timeout_routine = min(routines, key=lambda x: x["timeout"])
-    smallest_timeout = smallest_timeout_routine["timeout"]
+    if len(routines):
+        smallest_timeout_routine = min(routines, key=lambda x: x["timeout"])
+        smallest_timeout = smallest_timeout_routine["timeout"]
+    else:
+        smallest_timeout = 0
 
     # Wait until the smallest timeout has elapsed
     await asyncio.sleep(smallest_timeout)
