@@ -6,7 +6,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="aiosow",
-    version="0.1.4",
+    version="0.1.5",
     packages=find_packages(include=["aiosow"]),
     description="An event-based framework",
     long_description=long_description,
