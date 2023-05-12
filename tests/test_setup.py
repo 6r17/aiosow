@@ -1,5 +1,5 @@
 import pytest
-from aiosow.setup import initialize, setup, clear_setups
+from aiosow.setup import initialize, setup, clear_setups, get_setups
 
 
 async def my_init_function_1(foo: dict):
@@ -29,3 +29,11 @@ async def test_initialize():
     assert kwargs == {"foo": {"key_1": "value_1", "key_2": "value_2"}}
     assert len(tasks) == 1
     await tasks[0]
+
+
+@pytest.mark.asyncio
+async def test_duplicate_setup_declaration():
+    clear_setups()
+    setup(my_init_function_1)
+    setup(my_init_function_1)
+    assert len(get_setups()) == 1

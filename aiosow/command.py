@@ -82,7 +82,8 @@ def run(composition=None, **kwargs):
     memory["running"] = True
     if TRIGGER_ROUTINES:
         consumer = loop.run_until_complete(spawn_routine_consumer(memory))
-        tasks = tasks + [consumer]
+        if consumer:
+            tasks = tasks + [consumer]
     # setups can return a task which is ran here
     # this allows setups to start tasks and still have them complete
     loop.run_until_complete(asyncio.gather(*tasks))

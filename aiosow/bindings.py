@@ -12,16 +12,21 @@ from aiosow.perpetuate import on, perpetuate
 from aiosow.setup import setup
 
 
-# def adapter(resolve: Callable) -> Callable:
-#    def wrapper(function: Callable) -> Callable:
-#        async def caller(item, **kwargs):
-#            value = await autofill(resolve, args=[item], **kwargs)
-#            result = await autofill(function, args=[value], **kwargs)
-#            return result
-#
-#        return caller
-#
-#    return wrapper
+def adapter(resolve: Callable) -> Callable:
+    """
+    [unstable implementation]
+    Inverse of `wrap`. Allows to mutate the parameter given to a function
+    """
+
+    def wrapper(function: Callable) -> Callable:
+        async def caller(item, **kwargs):
+            value = await autofill(resolve, args=[item], **kwargs)
+            result = await autofill(function, args=[value], **kwargs)
+            return result
+
+        return caller
+
+    return wrapper
 
 
 def chain(*functions):
