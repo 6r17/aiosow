@@ -16,6 +16,11 @@ def clear_setups():  # pragma: no cover
     SETUP_FUNCTIONS = []
 
 
+def get_setups():  # pragma: no cover
+    global SETUP_FUNCTIONS
+    return SETUP_FUNCTIONS
+
+
 def setup(func: Callable) -> Callable:
     """
     Decorator to add a function to the list of initialization functions.

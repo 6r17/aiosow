@@ -1,6 +1,7 @@
 import time, asyncio
 import pytest
 from aiosow.bindings import (
+    adapter,
     expect,
     do_raise,
     dont_raise,
@@ -320,3 +321,17 @@ async def test_expect():
         dont_unlock, retries=1, on_raise=dont_raise, condition=return_false
     )(mocked)
     result = await patched()
+
+
+@pytest.mark.asyncio
+async def test_adapter():
+    async def resolve(item):
+        return item + 1
+
+    async def multiply_by_two(num):
+        return num * 2
+
+    # Test case 1: Test with a function that takes a single argument
+    adapter_func = adapter(resolve)(multiply_by_two)
+    result = await adapter_func(1)
+    assert result == 4

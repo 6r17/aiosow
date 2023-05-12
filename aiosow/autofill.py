@@ -4,7 +4,6 @@ await function(*args, **memory) -> this doesn't work because :
     - kwargs itself is a copy and will break reference
 """
 from typing import Any, Callable, List
-from types import LambdaType
 
 import inspect, logging, asyncio
 
@@ -118,18 +117,24 @@ async def fill_prototype(function: Callable, args: Any = [], **kwargs) -> Any:
     return (name, given_args, kws)
 
 
+def get_function_representation(function):
+    name = function.__name__
+    if name == "<lambda>":
+        name = (
+            inspect.getsource(function)
+            .replace("\n", "")
+            .replace("\t", "")
+            .replace("    ", "")
+        )
+    return name
+
+
 async def autofill(function: Callable, args: Any = [], **kwargs) -> Any:
     name, given_args, kws = await fill_prototype(function, args=args, **kwargs)
     try:
-        if kwargs.get("memory", {}).get("log_autofill", False):
-            if name == "<lambda>":
-                name = (
-                    inspect.getsource(function)
-                    .replace("\n", "")
-                    .replace("\t", "")
-                    .replace("    ", "")
-                )
-            logging.info(f" -> {name}")
+        if kwargs.get("memory", {}).get("log_autofill", False):  # pragma: no cover
+            function_representation = get_function_representation(function)
+            logging.info(f" -> {function_representation}")
         result = function(*given_args, **kws)
         return await result if inspect.iscoroutine(result) else result
     except Exception as err:  # pragma: no cover
@@ -158,4 +163,4 @@ def make_async(function: Callable) -> Callable:
     return wrapper
 
 
-__all__ = ["alias", "autofill", "make_async"]
+__all__ = ["alias", "autofill", "make_async", "fill_prototype"]

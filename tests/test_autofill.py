@@ -1,7 +1,13 @@
 import pytest
 
 from aiosow.bindings import delay
-from aiosow.autofill import get_aliases, reset_aliases, autofill, alias
+from aiosow.autofill import (
+    get_aliases,
+    reset_aliases,
+    autofill,
+    alias,
+    get_function_representation,
+)
 
 
 def my_func(__a__, __b__=2, __c__=3):
@@ -135,3 +141,21 @@ async def test_autofill_aliased():
 
     alias("test")(test)
     assert await autofill(my_function7, args=args, memory=memory) == "correct"
+
+
+def test_get_function_representation():
+    # Test case 1: Test with a named function
+    def named_function():
+        pass
+
+    assert get_function_representation(named_function) == "named_function"
+
+    # Test case 2: Test with a lambda function
+    lambda_function = lambda x: x**2
+    expected_result = "lambda_function = lambda x: x**2"
+    assert get_function_representation(lambda_function) == expected_result
+
+    # Test case 3: Test with a lambda function with whitespace
+    lambda_function = lambda x: x**2
+    expected_result = "lambda_function = lambda x: x**2"
+    assert get_function_representation(lambda_function) == expected_result

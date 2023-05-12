@@ -79,11 +79,8 @@ def routine(
 async def consume_routines(memory):
     routines = get_routines()
     # Find the routine with the smallest remaining timeout or a timeout <= 0
-    if len(routines):
-        smallest_timeout_routine = min(routines, key=lambda x: x["timeout"])
-        smallest_timeout = smallest_timeout_routine["timeout"]
-    else:
-        smallest_timeout = 0
+    smallest_timeout_routine = min(routines, key=lambda x: x["timeout"])
+    smallest_timeout = smallest_timeout_routine["timeout"]
 
     # Wait until the smallest timeout has elapsed
     await asyncio.sleep(smallest_timeout)
@@ -119,7 +116,8 @@ async def routine_consumer(memory):  # pragma: no cover
 
 
 async def spawn_routine_consumer(memory):  # pragma: no cover
-    return asyncio.create_task(routine_consumer(memory))
+    if len(ROUTINES) > 0:
+        return asyncio.create_task(routine_consumer(memory))
 
 
 __all__ = ["routine", "infinite_generator"]

@@ -29,7 +29,7 @@ def option(*args, **kwargs):  # pragma: no cover
     OPTIONS.append((args, kwargs))
 
 
-def command(name):
+def command(name):  # pragma: no cover
     """
     Register an argparse command to be available using the command-line.
 
