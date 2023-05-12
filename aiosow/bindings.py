@@ -1,16 +1,27 @@
-from typing import Tuple, Callable, Any
+from typing import Tuple, Callable, Any, Union
 
 import pdb as _pdb
 import asyncio
 import time
 import inspect
-
 from functools import wraps
 
 from aiosow.autofill import autofill, alias, make_async
 from aiosow.options import option
 from aiosow.perpetuate import on, perpetuate
 from aiosow.setup import setup
+
+
+# def adapter(resolve: Callable) -> Callable:
+#    def wrapper(function: Callable) -> Callable:
+#        async def caller(item, **kwargs):
+#            value = await autofill(resolve, args=[item], **kwargs)
+#            result = await autofill(function, args=[value], **kwargs)
+#            return result
+#
+#        return caller
+#
+#    return wrapper
 
 
 def chain(*functions):
@@ -151,7 +162,7 @@ def wire(condition=None, perpetual=False, pass_args=True) -> Tuple[Callable, Cal
     return (trigger_decorator, listen_decorator)
 
 
-def accumulator(size: int | Callable) -> Callable:
+def accumulator(size: Union[int, Callable]) -> Callable:
     """
     Batch the calls to a function. Triggers it when the bucket size is reached.
     If the size passed is a `Callable`, accumulator will call it with `memory`
@@ -279,7 +290,7 @@ def wrap(wrapper_function: Callable):
     return decorator
 
 
-def each(iter: Callable | None = None):
+def each(iter: Union[Callable, None] = None):
     """
     Applies a function to each item in :
         - result of iter
