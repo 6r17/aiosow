@@ -75,15 +75,25 @@ async def fill_prototype(function: Callable, args: Any = [], **kwargs) -> Any:
         return [
             (
                 param_name,
-                None if param.default is inspect.Parameter.empty else param.default,
+                None
+                if param.default is inspect.Parameter.empty
+                else param.default,
             )
-            for param_name, param in inspect.signature(function).parameters.items()
+            for param_name, param in inspect.signature(
+                function
+            ).parameters.items()
             if param.kind != inspect.Parameter.VAR_KEYWORD
             and param.kind != inspect.Parameter.VAR_POSITIONAL
         ]
 
     class Sentinel:
         """Used to represent element to be deleted"""
+
+    def none_to_empty(el):  # pragma: no cover
+        if el == None:
+            return []
+        else:
+            return el
 
     argscopy = list(args)
     if hasattr(function, "__wrapped__"):
@@ -103,7 +113,8 @@ async def fill_prototype(function: Callable, args: Any = [], **kwargs) -> Any:
             if len(argscopy) > 0
             else (
                 memory.get(name, value)
-                if not inspect.getfullargspec(function).varkw
+                if not name
+                in none_to_empty(inspect.getfullargspec(function).varkw)
                 else Sentinel
             )
             for (name, value) in prot
@@ -113,7 +124,9 @@ async def fill_prototype(function: Callable, args: Any = [], **kwargs) -> Any:
             param.kind == inspect.Parameter.VAR_POSITIONAL
             for param in inspect.signature(function).parameters.values()
         )
-        given_args = given_args if not has_varargs else given_args + list(argscopy)
+        given_args = (
+            given_args if not has_varargs else given_args + list(argscopy)
+        )
     return (name, given_args, kws)
 
 
@@ -132,7 +145,9 @@ def get_function_representation(function):
 async def autofill(function: Callable, args: Any = [], **kwargs) -> Any:
     name, given_args, kws = await fill_prototype(function, args=args, **kwargs)
     try:
-        if kwargs.get("memory", {}).get("log_autofill", False):  # pragma: no cover
+        if kwargs.get("memory", {}).get(
+            "log_autofill", False
+        ):  # pragma: no cover
             function_representation = get_function_representation(function)
             logging.info(f" -> {function_representation}")
         result = function(*given_args, **kws)
@@ -157,7 +172,9 @@ def make_async(function: Callable) -> Callable:
 
     async def wrapper(*args, **kwargs):
         loop = asyncio.get_event_loop()
-        __name__, given_args, kws = await fill_prototype(function, args=args, **kwargs)
+        __name__, given_args, kws = await fill_prototype(
+            function, args=args, **kwargs
+        )
         return await loop.run_in_executor(None, function, *given_args, **kws)
 
     return wrapper
