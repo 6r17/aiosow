@@ -10,7 +10,10 @@ def load_composition(composition=None, **kwargs):
     debug = (
         "-d" in sys.argv
         or "--debug" in sys.argv
-        or any(arg.find("-d") != -1 or arg.find("--debug") != -1 for arg in sys.argv)
+        or any(
+            arg.find("-d") != -1 or arg.find("--debug") != -1
+            for arg in sys.argv
+        )
     )
     if "--log" in sys.argv or kwargs.get("log", False):
         logging.basicConfig(
@@ -48,7 +51,9 @@ def load_composition(composition=None, **kwargs):
         if not composition:
             composition = sys.argv[1]
         composition = (
-            f"{composition}.bindings" if not ".bindings" in composition else composition
+            f"{composition}.bindings"
+            if not ".bindings" in composition
+            else composition
         )
         importlib.import_module(composition)
     except Exception as e:

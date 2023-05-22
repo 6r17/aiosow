@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, Union
 from functools import wraps
 
 import asyncio, logging
@@ -47,7 +47,7 @@ def get_routines():
 
 
 def routine(
-    frequency: int | float,
+    frequency: Union[int, float],
     condition: Callable = return_true,
     timeout: int = -1,
     perpetuate=True,
@@ -88,7 +88,9 @@ async def consume_routines(memory):
     # Execute any routines that have timed out
     for routine in routines:
         routine["timeout"] -= smallest_timeout
-        routine["timeout"] = 0 if routine["timeout"] < 0 else routine["timeout"]
+        routine["timeout"] = (
+            0 if routine["timeout"] < 0 else routine["timeout"]
+        )
         if routine["timeout"] <= 0:
             condition = routine["condition"]
             function = routine["function"]
