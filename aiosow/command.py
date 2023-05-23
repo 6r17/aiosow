@@ -1,7 +1,7 @@
 #! env python3.11
 
 import logging, asyncio, importlib, argparse, sys
-from aiosow.setup import initialize, TRIGGER_ROUTINES
+from aiosow.setup import initialize, should_trigger_routines
 from aiosow.options import options, commands
 from aiosow.routines import spawn_routine_consumer
 
@@ -85,14 +85,12 @@ def run(composition=None, **kwargs):
     asyncio.set_event_loop(loop)
     tasks = loop.run_until_complete(initialize(memory))
     memory["running"] = True
-    if TRIGGER_ROUTINES:
+    if should_trigger_routines():
         consumer = loop.run_until_complete(spawn_routine_consumer(memory))
         if consumer:
             tasks = tasks + [consumer]
-    # setups can return a task which is ran here
-    # this allows setups to start tasks and still have them complete
     loop.run_until_complete(asyncio.gather(*tasks))
-    if memory["run_forever"]:
+    if memory.get("run_forever", False):
         loop.run_forever()
 
 
