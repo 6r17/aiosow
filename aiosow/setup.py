@@ -11,7 +11,7 @@ def trigger_routines():
     TRIGGER_ROUTINES = True
 
 
-def should_trigger_routines() -> bool:
+def should_trigger_routines() -> bool:  # pragma: no cover
     global TRIGGER_ROUTINES
     return TRIGGER_ROUTINES
 
